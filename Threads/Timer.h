@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <chrono>
 
@@ -17,7 +17,7 @@ public:
 		m_bRunning = false;
 	}
 
-	double elapsedMilliseconds()
+	double elapsedMilliseconds() const noexcept
 	{
 		std::chrono::time_point<std::chrono::system_clock> endTime;
 
@@ -33,7 +33,7 @@ public:
 		return (double)std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
 	}
 
-	double elapsedSeconds()
+	double elapsedSeconds() const noexcept
 	{
 		return elapsedMilliseconds() / 1000.0;
 	}

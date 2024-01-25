@@ -16,68 +16,67 @@ namespace tbb
 		std::vector<int> numbers(size);
 		std::iota(numbers.begin(), numbers.end(), 1);
 
-		/*
-		* Использовать C++17
-		* TBB библиотека(Intel) - является высокоуровневой библиотекой, чем OpenMP
-		* В TBB есть планировщих задач, который помогает лучше оптимизировать работу.
-		  Это достигается с помощью алгоритма work stealing, который реализует динамическую балансировку нагрузки:
-		  если есть функция разной сложности, то если какой-то поток обработал очень быстро свою очередь задач, то он возьмет часть задач тех потоков, которые еще это не сделали.
-		* В TBB нельзя создать поток, поэтому в каких потоках идет выполнение знать не нужно. Можно только создать задачу и отдать ее на исполнение планировщику.
-		*/
+        /*
+          РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ C++17
+          TBB (Threading Building Blocks) - Р±РёР±Р»РёРѕС‚РµРєР° Intel, СЏРІР»СЏРµС‚СЃСЏ РІС‹СЃРѕРєРѕСѓСЂРѕРІРЅРµРІРѕР№ Р±РёР±Р»РёРѕС‚РµРєРѕР№, С‡РµРј OpenMP.
+          Р’ TBB РµСЃС‚СЊ РїР»Р°РЅРёСЂРѕРІС‰РёС… Р·Р°РґР°С‡, РєРѕС‚РѕСЂС‹Р№ РїРѕРјРѕРіР°РµС‚ Р»СѓС‡С€Рµ РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ СЂР°Р±РѕС‚Сѓ.
+          Р­С‚Рѕ РґРѕСЃС‚РёРіР°РµС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ Р°Р»РіРѕСЂРёС‚РјР° work stealing, РєРѕС‚РѕСЂС‹Р№ СЂРµР°Р»РёР·СѓРµС‚ РґРёРЅР°РјРёС‡РµСЃРєСѓСЋ Р±Р°Р»Р°РЅСЃРёСЂРѕРІРєСѓ РЅР°РіСЂСѓР·РєРё. Р•СЃС‚СЊ С„СѓРЅРєС†РёСЏ СЂР°Р·РЅРѕР№ СЃР»РѕР¶РЅРѕСЃС‚Рё, РєР°РєРѕР№-С‚Рѕ РїРѕС‚РѕРє РѕС‡РµРЅСЊ Р±С‹СЃС‚СЂРѕ РѕР±СЂР°Р±РѕС‚Р°Р» СЃРІРѕСЋ РѕС‡РµСЂРµРґСЊ Р·Р°РґР°С‡, С‚Рѕ РѕРЅ РІРѕР·СЊРјРµС‚ С‡Р°СЃС‚СЊ СЃРІРѕР±РѕРґРЅС‹С… Р·Р°РґР°С‡ РґСЂСѓРіРѕРіРѕ РїРѕС‚РѕРєР°. Р’ TBB СЃР°РјРѕРјСѓ СЃРѕР·РґР°С‚СЊ РїРѕС‚РѕРє РЅРµР»СЊР·СЏ, РїРѕСЌС‚РѕРјСѓ РІ РєР°РєРёС… РїРѕС‚РѕРєР°С… РёРґРµС‚ РІС‹РїРѕР»РЅРµРЅРёРµ Р·РЅР°С‚СЊ РЅРµ РЅСѓР¶РЅРѕ. РњРѕР¶РЅРѕ С‚РѕР»СЊРєРѕ СЃРѕР·РґР°С‚СЊ Р·Р°РґР°С‡Сѓ Рё РѕС‚РґР°С‚СЊ РµРµ РЅР° РёСЃРїРѕР»РЅРµРЅРёРµ РїР»Р°РЅРёСЂРѕРІС‰РёРєСѓ.
+          РџРѕРґСЂРѕР±РЅРµРµ: https://oneapi-src.github.io/oneTBB/
+        */
 		std::cout << "TBB" << std::endl;
-		// parallel_for - Параллельное выполнение операции над каждым элементом контейнера
+		// parallel_for - РџР°СЂР°Р»Р»РµР»СЊРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ РѕРїРµСЂР°С†РёРё РЅР°Рґ РєР°Р¶РґС‹Рј СЌР»РµРјРµРЅС‚РѕРј РєРѕРЅС‚РµР№РЅРµСЂР°
 		{
-			// Линейное число потоков
+			// Р›РёРЅРµР№РЅРѕРµ С‡РёСЃР»Рѕ РїРѕС‚РѕРєРѕРІ
 			{
-				// 1 способ parallel_for
+				// 1 СЃРїРѕСЃРѕР± parallel_for
 				{
 					int sum = 0;
 					timer.start();
 					tbb::parallel_for(0, (int)numbers.size(), [&sum, &numbers](int index)
 						{
 							sum += numbers[index];
-							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Если закоментить, может не считать в отдельном потоке
+							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Р•СЃР»Рё Р·Р°РєРѕРјРµРЅС‚РёС‚СЊ, РјРѕР¶РµС‚ РЅРµ СЃС‡РёС‚Р°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 						});
 					timer.stop();
-					std::cout << "1 способ parallel_for, TBB сам определяет нужное число потоков линейно, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+					std::cout << "1 СЃРїРѕСЃРѕР± parallel_for, TBB СЃР°Рј РѕРїСЂРµРґРµР»СЏРµС‚ РЅСѓР¶РЅРѕРµ С‡РёСЃР»Рѕ РїРѕС‚РѕРєРѕРІ Р»РёРЅРµР№РЅРѕ, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 				}
 
-				// 2 способ parallel_for, фиксированный шаг диапазона (Index first, Index last)
+				// 2 СЃРїРѕСЃРѕР± parallel_for, С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ С€Р°Рі РґРёР°РїР°Р·РѕРЅР° (Index first, Index last)
 				{
 					int sum = 0;
-					constexpr int step = 20; // шаг
+					constexpr int step = 20; // С€Р°Рі
 					timer.start();
 					tbb::parallel_for<int>(0, (int)numbers.size(), step, [&sum, &numbers](int index)
 						{
 							sum += numbers[index];
-							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Если закоментить, может не считать в отдельном потоке
+							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Р•СЃР»Рё Р·Р°РєРѕРјРµРЅС‚РёС‚СЊ, РјРѕР¶РµС‚ РЅРµ СЃС‡РёС‚Р°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 						});
 					timer.stop();
-					std::cout << "2 способ parallel_for, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+					std::cout << "2 СЃРїРѕСЃРѕР± parallel_for, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 				}
 
 				// parallel_for_each
 				{
 					int sum = 0;
-					tbb::spin_rw_mutex mutex; // Аналог в STL - std::mutex
+					tbb::spin_rw_mutex mutex; // РђРЅР°Р»РѕРі РІ STL - std::mutex
 					timer.start();
 					tbb::parallel_for_each(numbers, [&sum, &mutex](int number)
 						{
 							sum += number;
 							if (sum % 2 == 0)
 							{
-								tbb::spin_rw_mutex::scoped_lock lock(mutex); // Аналог в STL - std::lock_guard или в OpenNM - barrier, critical
+								tbb::spin_rw_mutex::scoped_lock lock(mutex); // РђРЅР°Р»РѕРі РІ STL - std::lock_guard РёР»Рё РІ OpenNM - barrier, critical
 							}
-							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Если закоментить, может не считать в отдельном потоке
+							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << index << std::endl; // Р•СЃР»Рё Р·Р°РєРѕРјРµРЅС‚РёС‚СЊ, РјРѕР¶РµС‚ РЅРµ СЃС‡РёС‚Р°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 						});
 					timer.stop();
-					std::cout << "1 способ parallel_for, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+					std::cout << "1 СЃРїРѕСЃРѕР± parallel_for, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 				}
 			}
 
-			// Число потоков определяется массивом
+			// Р§РёСЃР»Рѕ РїРѕС‚РѕРєРѕРІ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РјР°СЃСЃРёРІРѕРј
 			{
-				// 1 способ, blocked_range: потоки выделяются с помощью двумерного фиксированного массива
+				// 1 СЃРїРѕСЃРѕР±, blocked_range: РїРѕС‚РѕРєРё РІС‹РґРµР»СЏСЋС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ РґРІСѓРјРµСЂРЅРѕРіРѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ РјР°СЃСЃРёРІР°
 				{
 					int sum = 0;
 					constexpr int step = 20;
@@ -88,13 +87,13 @@ namespace tbb
 							{
 								sum += i;
 							}
-							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << r.begin() << std::endl; // Если закоментить, может не считать в отдельном потоке
+							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << r.begin() << std::endl; // Р•СЃР»Рё Р·Р°РєРѕРјРµРЅС‚РёС‚СЊ, РјРѕР¶РµС‚ РЅРµ СЃС‡РёС‚Р°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 						});
 					timer.stop();
-					std::cout << "1 способ blocked_range, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+					std::cout << "1 СЃРїРѕСЃРѕР± blocked_range, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 				}
 
-				// 2 способ, blocked_range: потоки выделяются с помощью трехмерного фиксированного массива
+				// 2 СЃРїРѕСЃРѕР±, blocked_range: РїРѕС‚РѕРєРё РІС‹РґРµР»СЏСЋС‚СЃСЏ СЃ РїРѕРјРѕС‰СЊСЋ С‚СЂРµС…РјРµСЂРЅРѕРіРѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ РјР°СЃСЃРёРІР°
 				{
 					int sum = 0;
 					constexpr int step = 20;
@@ -105,17 +104,17 @@ namespace tbb
 							{
 								sum += i;
 							}
-							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << r.begin() << std::endl; // Если закоментить, может не считать в отдельном потоке
+							//std::cout << "thread id: " << std::this_thread::get_id() << " - Index = " << r.begin() << std::endl; // Р•СЃР»Рё Р·Р°РєРѕРјРµРЅС‚РёС‚СЊ, РјРѕР¶РµС‚ РЅРµ СЃС‡РёС‚Р°С‚СЊ РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ
 						});
 					timer.stop();
-					std::cout << "2 способ blocked_range, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+					std::cout << "2 СЃРїРѕСЃРѕР± blocked_range, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 				}
 			}
 		}
 
-		// parellel_reduce - аналог в OpenNM - reduction. Помогает распараллелить не только задачи, но и функции слияния(может быть отдельной задачей)
+		// parellel_reduce - Р°РЅР°Р»РѕРі РІ OpenNM - reduction. РџРѕРјРѕРіР°РµС‚ СЂР°СЃРїР°СЂР°Р»Р»РµР»РёС‚СЊ РЅРµ С‚РѕР»СЊРєРѕ Р·Р°РґР°С‡Рё, РЅРѕ Рё С„СѓРЅРєС†РёРё СЃР»РёСЏРЅРёСЏ(РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚РґРµР»СЊРЅРѕР№ Р·Р°РґР°С‡РµР№)
 		{
-			// 1 способ, parellel_reduce: Class
+			// 1 СЃРїРѕСЃРѕР±, parellel_reduce: Class
 			{
 				struct Sum
 				{
@@ -140,12 +139,12 @@ namespace tbb
 
 				Sum sum;
 				timer.start();
-				tbb::parallel_reduce(tbb::blocked_range<std::vector<int>::iterator>(numbers.begin(), numbers.end()), sum); // Не работает с С++20
+				tbb::parallel_reduce(tbb::blocked_range<std::vector<int>::iterator>(numbers.begin(), numbers.end()), sum); // РќРµ СЂР°Р±РѕС‚Р°РµС‚ СЃ РЎ++20
 				timer.stop();
-				std::cout << "1 способ, parellel_reduce: Class, Сумма: " << sum.value << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+				std::cout << "1 СЃРїРѕСЃРѕР±, parellel_reduce: Class, РЎСѓРјРјР°: " << sum.value << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 			}
 
-			// 2 способ, parellel_reduce: Lambda
+			// 2 СЃРїРѕСЃРѕР±, parellel_reduce: Lambda
 			{
 				using range_type = tbb::blocked_range<std::vector<int>::iterator>;
 				timer.start();
@@ -156,10 +155,10 @@ namespace tbb
 					},
 					std::plus<int>());
 				timer.stop();
-				std::cout << "2 способ, parellel_reduce: Lambda, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+				std::cout << "2 СЃРїРѕСЃРѕР±, parellel_reduce: Lambda, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 			}
 
-			// 3 способ, parellel_reduce: Lambda
+			// 3 СЃРїРѕСЃРѕР±, parellel_reduce: Lambda
 			{
 				using range_type = tbb::blocked_range<std::vector<int>::iterator>;
 				range_type(numbers.begin(), numbers.end());
@@ -182,11 +181,11 @@ namespace tbb
 				);
 
 				timer.stop();
-				std::cout << "2 способ, parellel_reduce: Lambda, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+				std::cout << "2 СЃРїРѕСЃРѕР±, parellel_reduce: Lambda, РЎСѓРјРјР°: " << sum << " Р’СЂРµРјСЏ: " << timer.elapsedMilliseconds() << " РјСЃ" << std::endl;
 			}
 		}
 
-		// parellel_invoke - параллельное выполнение функции с помощью фиксированного числа
+		// parellel_invoke - РїР°СЂР°Р»Р»РµР»СЊРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ С„СѓРЅРєС†РёРё СЃ РїРѕРјРѕС‰СЊСЋ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ С‡РёСЃР»Р°
 		{
 			std::function<int(int)> Fib;
 			Fib = [&Fib](int n)->int
@@ -197,8 +196,8 @@ namespace tbb
 					}
 					else {
 						int x, y;
-						tbb::parallel_invoke([&] {x = Fib(n - 1); },  // 1 функтор
-							[&] {y = Fib(n - 2); }); // 2 функтор
+						tbb::parallel_invoke([&] {x = Fib(n - 1); },  // 1 С„СѓРЅРєС‚РѕСЂ
+							[&] {y = Fib(n - 2); }); // 2 С„СѓРЅРєС‚РѕСЂ
 						return x + y;
 					}
 				};
@@ -206,9 +205,9 @@ namespace tbb
 			auto result = Fib(5);
 		}
 
-		// task_group: отложенное выполнение задач
+		// task_group: РѕС‚Р»РѕР¶РµРЅРЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°С‡
 		{
-			// Здесь tasks запускаются сразу
+			// Р—РґРµСЃСЊ tasks Р·Р°РїСѓСЃРєР°СЋС‚СЃСЏ СЃСЂР°Р·Сѓ
 			std::function<int(int)> Fib;
 			Fib = [&Fib](int n)->int
 				{
@@ -219,21 +218,21 @@ namespace tbb
 					else {
 						int x, y;
 						tbb::task_group g;
-						g.run([&] {x = Fib(n - 1); }); // Запуск первой task
-						g.run([&] {y = Fib(n - 2); }); // Запуск второй task
-						g.wait();                // Подождать, пока обе задачи не завершаться
+						g.run([&] {x = Fib(n - 1); }); // Р—Р°РїСѓСЃРє РїРµСЂРІРѕР№ task
+						g.run([&] {y = Fib(n - 2); }); // Р—Р°РїСѓСЃРє РІС‚РѕСЂРѕР№ task
+						g.wait();                // РџРѕРґРѕР¶РґР°С‚СЊ, РїРѕРєР° РѕР±Рµ Р·Р°РґР°С‡Рё РЅРµ Р·Р°РІРµСЂС€Р°С‚СЊСЃСЏ
 						return x + y;
 					}
 				};
 		}
 
-		// parellel_do - почти тоже самое, что parallel_for, только еще можно добавлять итерирование в оннлайн режиме и сделать фактически бессконечный конвеер.
+		// parellel_do - РїРѕС‡С‚Рё С‚РѕР¶Рµ СЃР°РјРѕРµ, С‡С‚Рѕ parallel_for, С‚РѕР»СЊРєРѕ РµС‰Рµ РјРѕР¶РЅРѕ РґРѕР±Р°РІР»СЏС‚СЊ РёС‚РµСЂРёСЂРѕРІР°РЅРёРµ РІ РѕРЅРЅР»Р°Р№РЅ СЂРµР¶РёРјРµ Рё СЃРґРµР»Р°С‚СЊ С„Р°РєС‚РёС‡РµСЃРєРё Р±РµСЃСЃРєРѕРЅРµС‡РЅС‹Р№ РєРѕРЅРІРµРµСЂ.
 		{
 
 		}
 
 		/*
-		* parellel_pipeline - распараллеливание на определенном участке
+		* parellel_pipeline - СЂР°СЃРїР°СЂР°Р»Р»РµР»РёРІР°РЅРёРµ РЅР° РѕРїСЂРµРґРµР»РµРЅРЅРѕРј СѓС‡Р°СЃС‚РєРµ
 		*            _____
 		*           |_____|
 		*    _____ / _____ \ _____    _____
@@ -244,13 +243,13 @@ namespace tbb
 
 		{
 			/*
-			* 3 последовательных фильтра:
-			* 1 последовательный фильтр читает строку из ФАЙЛА!!!
-			* 2 параллельный фильтр берет строку, которую прочитал 1 фильтр, сортирует параллельно строку
-			* 3 последовательный фильтр берет отсортированную строку из 2 фильтра и пишет в файл
+			* 3 РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹С… С„РёР»СЊС‚СЂР°:
+			* 1 РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ С„РёР»СЊС‚СЂ С‡РёС‚Р°РµС‚ СЃС‚СЂРѕРєСѓ РёР· Р¤РђР™Р›Рђ!!!
+			* 2 РїР°СЂР°Р»Р»РµР»СЊРЅС‹Р№ С„РёР»СЊС‚СЂ Р±РµСЂРµС‚ СЃС‚СЂРѕРєСѓ, РєРѕС‚РѕСЂСѓСЋ РїСЂРѕС‡РёС‚Р°Р» 1 С„РёР»СЊС‚СЂ, СЃРѕСЂС‚РёСЂСѓРµС‚ РїР°СЂР°Р»Р»РµР»СЊРЅРѕ СЃС‚СЂРѕРєСѓ
+			* 3 РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ С„РёР»СЊС‚СЂ Р±РµСЂРµС‚ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅСѓСЋ СЃС‚СЂРѕРєСѓ РёР· 2 С„РёР»СЊС‚СЂР° Рё РїРёС€РµС‚ РІ С„Р°Р№Р»
 			*/
 
-			std::istringstream input; // Строка, не ФАЙЛ! Поэтому дальше не работает
+			std::istringstream input; // РЎС‚СЂРѕРєР°, РЅРµ Р¤РђР™Р›! РџРѕСЌС‚РѕРјСѓ РґР°Р»СЊС€Рµ РЅРµ СЂР°Р±РѕС‚Р°РµС‚
 			std::ostringstream out;
 			input.str("1\n2\n3\n4\n5\n6\n7\n\0");
 
@@ -294,11 +293,11 @@ namespace tbb
 			*/
 		}
 
-		// graph - Построение графа. Относится к сервисным архитектурам
+		// graph - РџРѕСЃС‚СЂРѕРµРЅРёРµ РіСЂР°С„Р°. РћС‚РЅРѕСЃРёС‚СЃСЏ Рє СЃРµСЂРІРёСЃРЅС‹Рј Р°СЂС…РёС‚РµРєС‚СѓСЂР°Рј
 		{
 			tbb::flow::graph g;
 
-			// Построение ребра
+			// РџРѕСЃС‚СЂРѕРµРЅРёРµ СЂРµР±СЂР°
 			tbb::flow::continue_node<tbb::flow::continue_msg> node1(g, [](const tbb::flow::continue_msg&)
 				{
 					std::cout << "node 1 with";
@@ -311,7 +310,7 @@ namespace tbb
 
 			tbb::flow::make_edge(node1, node2);
 			node1.try_put(tbb::flow::continue_msg());
-			g.wait_for_all(); // Исполнение
+			g.wait_for_all(); // РСЃРїРѕР»РЅРµРЅРёРµ
 		}
 
 		std::cout << std::endl;
