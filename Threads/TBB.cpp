@@ -114,6 +114,7 @@ namespace tbb
 
 		// parellel_reduce - аналог в OpenNM - reduction. Помогает распараллелить не только задачи, но и функции слияния(может быть отдельной задачей)
 		{
+#if __cplusplus == 201703L // C++17
 			// 1 способ, parellel_reduce: Class
 			{
 				struct Sum
@@ -143,6 +144,7 @@ namespace tbb
 				timer.stop();
 				std::cout << "1 способ, parellel_reduce: Class, Сумма: " << sum.value << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
 			}
+#endif
 
 			// 2 способ, parellel_reduce: Lambda
 			{

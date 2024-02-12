@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <chrono>
 
@@ -7,30 +7,30 @@ class Timer
 public:
 	void start()
 	{
-		m_StartTime = std::chrono::system_clock::now();
-		m_bRunning = true;
+		_startTime = std::chrono::system_clock::now();
+		_running = true;
 	}
 
 	void stop()
 	{
-		m_EndTime = std::chrono::system_clock::now();
-		m_bRunning = false;
+		_endTime = std::chrono::system_clock::now();
+		_running = false;
 	}
 
 	double elapsedMilliseconds() const noexcept
 	{
-		std::chrono::time_point<std::chrono::system_clock> endTime;
+        std::chrono::time_point<std::chrono::system_clock> endTime;
 
-		if (m_bRunning)
-		{
-			endTime = std::chrono::system_clock::now();
-		}
-		else
-		{
-			endTime = m_EndTime;
-		}
+        if (_running)
+        {
+            endTime = std::chrono::system_clock::now();
+        }
+        else
+        {
+            endTime = _endTime;
+        }
 
-		return (double)std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
+        return (double)std::chrono::duration_cast<std::chrono::milliseconds>(endTime - _startTime).count();
 	}
 
 	double elapsedSeconds() const noexcept
@@ -39,7 +39,7 @@ public:
 	}
 
 private:
-	std::chrono::time_point<std::chrono::system_clock> m_StartTime;
-	std::chrono::time_point<std::chrono::system_clock> m_EndTime;
-	bool m_bRunning = false;
+	std::chrono::time_point<std::chrono::system_clock> _startTime;
+	std::chrono::time_point<std::chrono::system_clock> _endTime;
+	bool _running = false;
 };
