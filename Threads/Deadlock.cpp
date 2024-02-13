@@ -5,12 +5,29 @@
 #include <thread>
 
 
+
+
 /*
  Сайты: https://stackoverflow.com/questions/50286056/why-stdlock-supports-deallock-avoidence-but-stdtry-lock-does-not
  */
-/*
- Deadlock — ситуация, в которой есть 2 mutex и 2 thread и 2 функции. В function1 идет mutex1.lock(), mutex2.lock(). В функции function2 идет обратная очередность mutex2.lock(), mutex1.lock(). Получается thread1 захватывает mutex1, thread2 захватывает mutex2 и возникает взаимная блокировка.
- Решение До С++17::
+
+/* Виды блокировок:
+ 1. Livelock - голодание потоков.
+ 2. Starvation - нехватка ресурсов для потока.
+ 3. Deadlock - взаимная блокировка mutex.
+ Отличия:
+ В Livelock потоки находятся в состоянии ожидания и выполняются одновременно. Livelock — это частный случай Starvation - процесс в потоке не прогрессирует.
+ В Deadlock потоки находятся в состоянии ожидания.
+ */
+
+ /*
+ 1. Livelock (голодание потоков) - ситуация, в которой поток не может получить доступ к общим ресурсам, потому что на эти ресурсы всегда претендуют какие-то другие потоки, которым отдаётся предпочтение. Потоки не блокируются — они выполняют не столь полезные действия.
+ Решение: Расставлять приоритеты потоков и правильно использовать mutex.
+
+ 2. Starvation (голодание) - поток не может получить все ресурсы, необходимые для выполнения его работы.
+ 
+ 3. Deadlock — ситуация, в которой есть 2 mutex и 2 thread и 2 функции. В function1 идет mutex1.lock(), mutex2.lock(). В функции function2 идет обратная очередность mutex2.lock(), mutex1.lock(). Получается thread1 захватывает mutex1, thread2 захватывает mutex2 и возникает взаимная блокировка.
+ Решение До С++17:
  1. Захватывать (lock) несколько мьютексов всегда в одинаковом порядке
  2. Отпускать (unlock) захваченные (lock) mutex в порядке LIFO («последним пришёл — первым ушёл»)
  3. Можно использовать алгоритм предотвращения взаимоблокировок std::lock, порядок std::mutexов неважен:
@@ -233,7 +250,11 @@ namespace deadlock
                 {
                     auto index = std::try_lock(mutex1, mutex2);
                     if (index == -1)
+                    {
                         std::cout << "Блокировка всех std::mutex, index: " << index << std::endl;
+                        mutex1.unlock();
+                        mutex2.unlock();
+                    }
                     else
                         std::cout << "Разблокировка всех std::mutex, начиная с index: " << index << std::endl;
                     for (int i = 0; i < 10; ++i)
@@ -265,7 +286,7 @@ namespace deadlock
                 };
             auto function2 = [&]()
                 {
-                    std::scoped_lock scoped_lock(mutex2, mutex1);
+                    std::scoped_lock scoped_lock(mutex2, mutex1); // порядок неважен
                     std::this_thread::sleep_for(std::chrono::milliseconds(10)); // задержка, чтобы thread1 успел сделать lock в mutex1
                 };
             std::thread thread1(function1);

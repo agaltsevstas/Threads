@@ -3,8 +3,17 @@
 #include <iostream>
 #include <functional>
 #include <mutex>
+#include <ranges>
 #include <thread>
 #include <shared_mutex>
+
+
+/*
+ Сайты:
+ https://en.cppreference.com/w/cpp/thread/shared_mutex
+ https://stackoverflow.com/questions/46452973/difference-between-stdmutex-and-stdshared-mutex
+ https://stackoverflow.com/questions/57706952/does-stdshared-mutex-favor-writers-over-readers
+ */
 
 
 namespace MUTEX
@@ -145,23 +154,23 @@ namespace MUTEX
          */
         {
             std::cout << "std::recursive_mutex" << std::endl;
-            std::recursive_mutex rec_mutex;
+            std::recursive_mutex mutex;
             // 1 Способ: обычный
             {
                 std::cout << "1 Способ: обычный" << std::endl;
                 std::function<void(int)> Recursive = nullptr;
                 Recursive = [&](int number)
                     {
-                        rec_mutex.lock();
+                        mutex.lock();
                         std::cout << number << ' ';
                         if (number <= 1)
                         {
-                            rec_mutex.unlock();
+                            mutex.unlock();
                             std::cout << std::endl;
                             return;
                         }
                         Recursive(--number);
-                        rec_mutex.unlock();
+                        mutex.unlock();
                     };
 
                 std::thread thread1(Recursive, 5);
@@ -177,7 +186,7 @@ namespace MUTEX
                 std::function<void(int)> Recursive = nullptr;
                 Recursive = [&](int number)
                     {
-                        std::lock_guard lock(rec_mutex);
+                        std::lock_guard lock(mutex);
                         std::cout << number << ' ';
                         if (number <= 1)
                         {
@@ -202,14 +211,14 @@ namespace MUTEX
          */
         {
             std::cout << "std::timed_mutex" << std::endl;
-            std::timed_mutex timed_mutex;
+            std::timed_mutex mutex;
 
             // Неправильное использование: unlock разблокирует lock для других потоков, не дожидаясь времени
             {
                 std::cout << "Неправильное использование try_lock_for: unlock разблокирует lock не дожидаясь времени" << std::endl;
-                auto PrintSymbol = [&timed_mutex](char c)
+                auto PrintSymbol = [&mutex](char c)
                     {
-                        auto try_lock_for = timed_mutex.try_lock_for(std::chrono::milliseconds(11)); // нет проверки на захват std::timed_mutex
+                        auto try_lock_for = mutex.try_lock_for(std::chrono::milliseconds(11)); // нет проверки на захват std::timed_mutex
                         for (int i = 0; i < 10; ++i)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -217,7 +226,7 @@ namespace MUTEX
                         }
 
                         std::cout << std::endl;
-                        timed_mutex.unlock(); // немедленно разблокирует для других потоков
+                        mutex.unlock(); // немедленно разблокирует для других потоков
                     };
 
                 std::thread thread1(PrintSymbol, '+');
@@ -238,11 +247,11 @@ namespace MUTEX
                 // 1 Способ: try_lock_for
                 {
                     std::cout << "Правильное использование try_lock_for: unlock разблокирует lock через ОПРЕДЕЛЕНОЕ ВРЕМЯ" << std::endl;
-                    auto PrintSymbol = [&timed_mutex](char c)
+                    auto PrintSymbol = [&mutex](char c)
                         {
                             while (true)
                             {
-                                if (timed_mutex.try_lock_for(std::chrono::milliseconds(12))) // потоки ждут
+                                if (mutex.try_lock_for(std::chrono::milliseconds(12))) // потоки ждут
                                 {
                                     for (int i = 0; i < 10; ++i)
                                     {
@@ -250,7 +259,7 @@ namespace MUTEX
                                         std::cout << c;
                                     }
                                     std::cout << std::endl;
-                                    timed_mutex.unlock();
+                                    mutex.unlock();
                                     break;
                                 }
                                 else // НЕ зайдет сюда, т.к. время в try_lock_until > время в цикле
@@ -271,11 +280,11 @@ namespace MUTEX
                 // 2 Способ: try_lock_until
                 {
                     std::cout << "Правильное использование try_lock_until: unlock разблокирует lock до НАСТУПЛЕНИЯ МОМЕНТА ВРЕМЕНИ (например, 11:15:00)" << std::endl;
-                    auto PrintSymbol = [&timed_mutex](char c)
+                    auto PrintSymbol = [&mutex](char c)
                         {
                             while (true)
                             {
-                                if (timed_mutex.try_lock_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10))) // потоки ждут
+                                if (mutex.try_lock_until(std::chrono::system_clock::now() + std::chrono::milliseconds(10))) // потоки ждут
                                 {
                                     for (int i = 0; i < 10; ++i)
                                     {
@@ -283,7 +292,7 @@ namespace MUTEX
                                         std::cout << c;
                                     }
                                     std::cout << std::endl;
-                                    timed_mutex.unlock();
+                                    mutex.unlock();
                                     break;
                                 }
                                 else // зайдет сюда, т.к. время в try_lock_until < время в цикле
@@ -308,14 +317,14 @@ namespace MUTEX
          */
         {
             std::cout << "std::recursive_timed_mutex" << std::endl;
-            std::recursive_timed_mutex rec_timed_mutex;
+            std::recursive_timed_mutex mutex;
 
             std::function<void(int)> Recursive = nullptr;
             Recursive = [&](int number)
                 {
-                    if (rec_timed_mutex.try_lock_for(std::chrono::milliseconds(5))) // thread2 не зайдет сюда
+                    if (mutex.try_lock_for(std::chrono::milliseconds(5))) // thread2 не зайдет сюда
                     {
-                        std::lock_guard lock(rec_timed_mutex);
+                        std::lock_guard lock(mutex);
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
                         std::cout << number << ' ';
                         if (number <= 1)
@@ -343,18 +352,157 @@ namespace MUTEX
             std::cout << std::endl;
         }
         /*
-         std::shared_mutex - имеет 2 разных lock:
-         - exclusive_lock - для записи.
-         - shared_lock - для чтения. Правило: кол-во lock = кол-во unlock.
+         std::shared_mutex - имеет 2 разных блокировки:
+         - эксклюзивная блокировка (exclusive lock) - запись данных только для одного потока одновременно. Если один поток получил эксклюзивный доступ (через lock, try_lock), то никакие другие потоки не могут получить блокировку (включая общую).
+           Работает по аналогии std::mutex. Методы:
+           - lock
+           - unlock
+           - try_lock
+         - общая блокировка (shared lock) - чтение данных из нескольких потоков одновременно. Если один поток получил общую блокировку (через lock_shared, try_lock_shared), ни один другой поток не может получить эксклюзивную блокировку, но может получить общую блокировку.
+           Методы:
+           - shared_lock
+           - unlock_shared
+           - try_lock_shared
+         Замечание: в пределах одного потока одновременно может быть получена только одна блокировка (общая или эксклюзивная).
+         Плюсы:
+         - можно выделить участок кода, где будет происходить чтение из нескольких потоков.
+         - синхронизирует данные при записи/чтении, не вызывая Race condition/data race (состояние гонки). При записи данных одним потоком, чтение/запись данных блокируется для всех потоков. При чтении данных одним потоком, чтение данных - доступно для всех потоков, запись данных блокируется для всех потоков.
+         - параллелизм чтения и общая блокировка для чтения, которые недоступны при обычном std::mutex.
+         - отсутствие Livelock (голодание потоков) - ситуация, в которой поток не может получить доступ к общим ресурсам, потому что на эти ресурсы всегда претендуют какие-то другие потоки.
+         Минусы:
+         - больше весит, чем std::mutex.
          */
         {
-            std::shared_mutex mutex;
+            // Неправильное использование без std::shared_mutex: рассинхронизация чтения/записи при использовании обычного std::mutex
+            {
+                std::cout << "Неправильное использование без std::shared_mutex: рассинхронизация чтения/записи при использовании обычного std::mutex" << std::endl;
+                std::mutex mutex;
+                int number = 0;
+                
+                auto Read = [&]()->int
+                {
+                    std::cout << "read: " << number << ", thread: " << std::this_thread::get_id() << std::endl;
+                    return number;
+                };
+                
+                auto Write = [&](int iNumber)
+                {
+                    std::unique_lock lock(mutex);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    number = iNumber;
+                    std::cout << "write: " << iNumber << ", thread: " << std::this_thread::get_id() << std::endl;
+                };
+                
+                std::thread thread1(Read);
+                std::thread thread2(Write, 1); // На время блокирует доступ для всех потоков ТОЛЬКО в режиме записи
+                std::thread thread3(Read);
+                std::thread thread4(Read);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1)); // задержка, чтобы thread2 успел записать
+                std::thread thread5(Read);
+                
+                thread1.join();
+                thread2.join();
+                thread3.join();
+                thread4.join();
+                thread5.join();
+                
+                std::cout << std::endl;
+            }
+            // Правильное использование std::shared_mutex: синхронизация чтения/записи
+            {
+                std::cout << "Правильное использование std::shared_mutex: синхронизация чтения/записи" << std::endl;
+                std::shared_mutex mutex;
+                int number = 0;
+                
+                auto Read = [&]()->int
+                {
+                    std::shared_lock lock(mutex); // общая блокировка для чтения
+                    std::cout << "read: " << number << ", thread: " << std::this_thread::get_id() << std::endl;
+                    return number;
+                };
+                
+                auto Write = [&](int iNumber)
+                {
+                    std::unique_lock lock(mutex); // эксклюзивная блокировка для записи
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    number = iNumber;
+                    std::cout << "write: " << iNumber << ", thread: " << std::this_thread::get_id() << std::endl;
+                };
+                
+                std::thread thread1(Read); // На время блокирует доступ для всех потоков в режиме записи, но для чтения - нет
+                std::thread thread2(Write, 1); // На время блокирует доступ для всех потоков в режиме чтения/записи
+                std::thread thread3(Read);
+                std::thread thread4(Read);
+                std::thread thread5(Read);
+                
+                thread1.join();
+                thread2.join();
+                thread3.join();
+                thread4.join();
+                thread5.join();
+                
+                std::cout << std::endl;
+            }
         }
         /*
-        * std::shared_timed_mutex - обладает свойствами std::shared_mutex + std::timed_mutex.
+         std::shared_timed_mutex - обладает свойствами std::shared_mutex + std::timed_mutex.
         */
         {
-            std::shared_timed_mutex shared_timed_mutex;
+            std::cout << "std::shared_timed_mutex" << std::endl;
+            std::shared_timed_mutex mutex;
+            int number = 0;
+            
+            auto Read = [&]()->int
+            {
+                while (true)
+                {
+                    if (mutex.try_lock_shared_for(std::chrono::milliseconds(2))) // попытка общей блокировки для чтения
+                    {
+                        std::shared_lock(mutex, std::adopt_lock);
+                        std::cout << "read: " << number << ", thread: " << std::this_thread::get_id() << std::endl;
+                        return number;
+                    }
+                    else
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::cout << "std::shared_timed_mutex еще не освободился для чтения! Потока: " << std::this_thread::get_id() << std::endl;
+                    }
+                }
+            };
+            
+            auto Write = [&](int iNumber)
+            {
+                while (true)
+                {
+                    if (mutex.try_lock_until(std::chrono::system_clock::now() + std::chrono::milliseconds(2))) // попытка эксклюзивной блокировки для записи
+                    {
+                        std::unique_lock(mutex, std::adopt_lock);
+                        number = iNumber;
+                        std::cout << "write: " << iNumber << ", thread: " << std::this_thread::get_id() << std::endl;
+                        break;
+                    }
+                    else
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::cout << "std::shared_timed_mutex еще не освободился для записи! Потока: " << std::this_thread::get_id() << std::endl;
+                    }
+                    
+                }
+            };
+            
+            std::thread thread1(Read); // На время блокирует доступ для всех потоков в режиме записи, но для чтения - нет
+            std::thread thread2(Write, 1); // На время блокирует доступ для всех потоков в режиме чтения/записи
+            std::thread thread3(Read);
+            std::thread thread4(Read);
+            std::thread thread5(Read);
+            
+            thread1.join();
+            thread2.join();
+            thread3.join();
+            thread4.join();
+            thread5.join();
+            
+            std::cout << std::endl;
         }
     }
 }

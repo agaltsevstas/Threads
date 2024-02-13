@@ -24,6 +24,7 @@
 
 /*
  Лекция: https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3
+ Сайт: https://habr.com/ru/companies/otus/articles/549814/
 */
 
 class MyClass
