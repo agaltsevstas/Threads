@@ -291,8 +291,9 @@ Threading Building Blocks - библиотека Intel, является выс�
 ## Асинхронность
 TODO
 
-# Лекция:
-[Лекция 5. Multithreading in C++ (потоки, блокировки, задачи, атомарные операции, очереди сообщений)](https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3)
+# Лекции:
+[Лекция 5. Multithreading in C++ (потоки, блокировки, задачи, атомарные операции, очереди сообщений)](https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3) <br/>
+[Лекция 9. OpenMP и Intel TBB](https://www.youtube.com/watch?v=_MKbLk6K_Tk&t=2627s&ab_channel=ComputerScienceCenter)
 
 # Сайты: 
 [Multithreading](https://habr.com/ru/companies/otus/articles/549814/) <br/>

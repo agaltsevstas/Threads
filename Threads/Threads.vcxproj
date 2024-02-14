@@ -156,6 +156,7 @@
     <ClInclude Include="OpenMP.h" />
     <ClInclude Include="shared_recursive_mutex.h" />
     <ClInclude Include="TBB.h" />
+    <ClInclude Include="ThreadSafeQueue.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

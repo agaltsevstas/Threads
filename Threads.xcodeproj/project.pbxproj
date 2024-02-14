@@ -33,6 +33,7 @@
 		8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Deadlock.cpp; sourceTree = "<group>"; };
 		8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Deadlock.hpp; sourceTree = "<group>"; };
 		8022B1BD2B7A836700D04163 /* shared_recursive_mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_recursive_mutex.h; sourceTree = "<group>"; };
+		8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
 		80EC04872B6F9C2F0039AA2A /* Threads */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Threads; sourceTree = BUILT_PRODUCTS_DIR; };
 		80EC04912B6F9EDD0039AA2A /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		80EC04AC2B793A2F0039AA2A /* Threads.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Threads.cpp; sourceTree = "<group>"; };
@@ -77,6 +78,7 @@
 				8022B1B82B7A6E0A00D04163 /* Lock.hpp */,
 				8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */,
 				8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */,
+				8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */,
 			);
 			path = Threads;
 			sourceTree = "<group>";

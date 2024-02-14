@@ -4,6 +4,7 @@
 
 #include "shared_recursive_mutex.h"
 #include "Timer.h"
+#include "ThreadSafeQueue.h"
 
 #include <iomanip>
 #include <iostream>
@@ -109,6 +110,11 @@ int main()
      */
     {
         std::cout << "Многопоточность" << std::endl;
+        
+        // Вызыв объекта жровно один раз, даже если он вызывается одновременно из нескольких потоков.
+        {
+            
+        }
 
         // Синхронизация
         {
