@@ -17,9 +17,10 @@ std::jthread - по сравнению с std::thread преимущества:
 
 ## std::exception
 Исключения (std::exception) в разных потоках (std::thread) - не пересекаются. Чтобы пробросить исключение в главный поток можно использовать:
-- std::exception_ptr - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
-- std::rethrow_exception - пробрасывает исключение в другой try/catch.
-- std::stack<std::exception_ptr> - сохраняет исключение из другого потока.
+- ```std::current_exception``` - получение текущего exception.
+- ```std::exception_ptr``` - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
+- ```std::rethrow_exception``` - пробрасывает исключение в другой try/catch.
+- ```std::stack<std::exception_ptr>``` - сохраняет исключение из другого потока.
 ```
 std::stack<std::exception_ptr> exception_queue;
 auto Function = [&exception_queue]()
@@ -54,7 +55,7 @@ while (!exception_queue.empty())
 ```
 
 ### Безопасность исключений (exception safety)
-При захвате std::mutex при std::exception: используются RAII оберкти std::lock_guard/std::unique_lock, при выходе из стека в деструкторе вызывается unlock
+При захвате std::mutex при std::exception: лучше использовать RAII оберкти std::lock_guard/std::unique_lock, которые при выходе из стека в деструкторе вызывается unlock, вместо обычного std::mutex, который при возникновении исключения не вызовет unlock.
 ```
 std::mutex mutex;
 auto Function = [&mutex]()
