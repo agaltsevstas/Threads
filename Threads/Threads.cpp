@@ -110,9 +110,9 @@ int main()
     {
         std::cout << "Многопоточность" << std::endl;
 
-        // Паралеллизм
+        // Синхронизация
         {
-            std::cout << "Параллелизм" << std::endl;
+            std::cout << "Синхронизация" << std::endl;
             /*
              std::thread - это RAII обертка вокруг операционной системы, POSIX - API Linuxa, WindowsRest - API Windows
              Методы:
@@ -216,10 +216,10 @@ int main()
                     }
                 }
             }
-            /*
+            /* C++20
              std::jthread - по сравнению с std::thread преимущества:
-             - в деструкторе вызывается join
-             - безопасный и предотвращает утечку ресурсов: исключение будет перехвачено и обработано
+             - в деструкторе вызывается join.
+             - безопасный и предотвращает утечку ресурсов: исключение будет перехвачено и обработано.
              */
             {
                 std::cout << "jthread" << std::endl;
@@ -229,10 +229,10 @@ int main()
             }
             /*
              Исключения (std::exception) в разных потоках (std::thread) - не пересекаются. Чтобы пробросить исключение в главный поток можно использовать:
-             - std::exception_ptr - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception
-             - std::rethrow_exception - пробрасывает исключение в другой try/catch
-             - std::stack<std::exception_ptr> - сохраняет исключение из другого потока
-            */
+             - std::exception_ptr - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
+             - std::rethrow_exception - пробрасывает исключение в другой try/catch.
+             - std::stack<std::exception_ptr> - сохраняет исключение из другого потока.
+             */
             {
                 // Перехват исключений (exception catching)
                 {
@@ -250,10 +250,10 @@ int main()
                             exception_queue.push(exception);
                         }
                     };
-
+                    
                     std::thread thread(Function);
                     thread.join();
-
+                    
                     while (!exception_queue.empty())
                     {
                         try
@@ -267,7 +267,7 @@ int main()
                             std::cout << "Exception: " << exception.what() << std::endl;
                         }
                     }
-
+                    
                     std::cout << std::endl;
                 }
                 // Безопасность исключений (exception safety)
@@ -330,23 +330,23 @@ int main()
                 {
                     std::cout << "std::osyncstream" << std::endl;
                     auto printSymbol1 = [](char c)
+                    {
+                        for (int i = 0; i < 10; ++i)
                         {
-                            for (int i = 0; i < 10; ++i)
-                            {
-                                std::osyncstream(std::cout) << c;
-                            }
-                            std::cout << std::endl;
-                        };
-
+                            std::osyncstream(std::cout) << c;
+                        }
+                        std::cout << std::endl;
+                    };
+                    
                     auto printSymbol2 = [](char c)
+                    {
+                        for (int i = 0; i < 10; ++i)
                         {
-                            for (int i = 0; i < 10; ++i)
-                            {
-                                std::osyncstream(std::cout) << c;
-                            }
-                            std::cout << std::endl;
-                        };
-
+                            std::osyncstream(std::cout) << c;
+                        }
+                        std::cout << std::endl;
+                    };
+                    
                     std::thread thread1(printSymbol1, '+');
                     std::thread thread2(printSymbol2, '-');
                     thread1.join();
@@ -357,7 +357,7 @@ int main()
             }
             /*
              Lock management - RAII обертки, захват mutex.lock() ресурса происходит на стеке в конструкторе и высвобождение unlock при выходе из стека в деструкторе.
-            */
+             */
             {
                 LOCK::Start();
             }
@@ -368,9 +368,12 @@ int main()
              2. Отпускать (unlock) захваченные (lock) mutex в порядке LIFO («последним пришёл — первым ушёл»)
              3. Можно использовать алгоритм предотвращения взаимоблокировок
              */
-             {
-                 deadlock::start();
-             }
+            {
+                deadlock::start();
+            }
+        }
+        // Паралеллизм
+        {
             // Threadpool
             {
                 std::cout << "Threadpool" << std::endl;
@@ -422,10 +425,11 @@ int main()
                     std::cout << "2 Способ: std::this_thread::yield, с указанием размера массива, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
                 }
             }
+            
             /*
              Параллельные алгоритмы, C++17
-             - использовать при n > 10000 при ОЧЕНЬ ПРОСТЫХ операциях. Чем сложнее операции, тем быстрее выполняется параллельность
-             - OpenMP все равно быстрее, поэтому лучше его использовать
+             - использовать при n > 10000 при ОЧЕНЬ ПРОСТЫХ операциях. Чем сложнее операции, тем быстрее выполняется параллельность.
+             - OpenMP все равно быстрее, поэтому лучше его использовать. Но TBB быстрее OpenMP.
              */
             {
                 // std::execution::seq (обычная сортировка)
