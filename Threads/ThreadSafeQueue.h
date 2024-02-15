@@ -11,15 +11,21 @@ public:
     ThreadSafeQueue() noexcept = default;
     ~ThreadSafeQueue() noexcept = default;
     
-    TType& Get()
+    TType Back()
     {
-        std::unique_lock lock(_mutex);
+        std::shared_lock lock(_mutex);
         return _queue.back();
+    }
+    
+    TType Front()
+    {
+        std::shared_lock lock(_mutex);
+        return _queue.front();
     }
 
     void Push(TType&& value)
     {
-        std::shared_lock lock(_mutex);
+        std::unique_lock lock(_mutex);
         _queue.push(std::forward<TType>(value));
     };
     
