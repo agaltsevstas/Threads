@@ -111,9 +111,21 @@ int main()
     {
         std::cout << "Многопоточность" << std::endl;
         
-        // Вызыв объекта жровно один раз, даже если он вызывается одновременно из нескольких потоков.
+        // Вызов объекта ровно один раз, даже если он вызывается одновременно из нескольких потоков.
         {
+            std::once_flag flag;
+            auto CallOnce = [&flag](int number, int factor)
+            {
+                std::call_once(flag, [&](){ std::cout << "result in std::call_once: " << number * factor << std::endl;});
+            };
             
+            std::thread thread1(CallOnce, 10, 2);
+            std::thread thread2(CallOnce, 11, 2);
+            std::thread thread3(CallOnce, 12, 2);
+            
+            thread1.join();
+            thread2.join();
+            thread3.join();
         }
 
         // Синхронизация
