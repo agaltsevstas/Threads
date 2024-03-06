@@ -5,8 +5,6 @@
 #include <thread>
 
 
-
-
 /*
  Сайты: https://stackoverflow.com/questions/50286056/why-stdlock-supports-deallock-avoidence-but-stdtry-lock-does-not
  */

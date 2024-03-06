@@ -10,6 +10,8 @@
 		8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B42B7A6C4000D04163 /* Mutex.cpp */; };
 		8022B1B92B7A6E0A00D04163 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B72B7A6E0A00D04163 /* Lock.cpp */; };
 		8022B1BC2B7A7DBB00D04163 /* Deadlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */; };
+		8094D1D72B7E39D600ED7423 /* Conditional_Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */; };
+		8094D1F52B83E81300ED7423 /* Atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8094D1F32B83E81300ED7423 /* Atomic.cpp */; };
 		80EC04AD2B793A2F0039AA2A /* Threads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80EC04AC2B793A2F0039AA2A /* Threads.cpp */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +36,11 @@
 		8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Deadlock.hpp; sourceTree = "<group>"; };
 		8022B1BD2B7A836700D04163 /* shared_recursive_mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_recursive_mutex.h; sourceTree = "<group>"; };
 		8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
+		8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Conditional_Variable.cpp; sourceTree = "<group>"; };
+		8094D1D62B7E39D600ED7423 /* Conditional_Variable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Conditional_Variable.hpp; sourceTree = "<group>"; };
+		8094D1D82B833BE100ED7423 /* Singleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Singleton.h; sourceTree = "<group>"; };
+		8094D1F32B83E81300ED7423 /* Atomic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Atomic.cpp; sourceTree = "<group>"; };
+		8094D1F42B83E81300ED7423 /* Atomic.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Atomic.hpp; sourceTree = "<group>"; };
 		80EC04872B6F9C2F0039AA2A /* Threads */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Threads; sourceTree = BUILT_PRODUCTS_DIR; };
 		80EC04912B6F9EDD0039AA2A /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		80EC04AC2B793A2F0039AA2A /* Threads.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Threads.cpp; sourceTree = "<group>"; };
@@ -79,6 +86,11 @@
 				8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */,
 				8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */,
 				8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */,
+				8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */,
+				8094D1D62B7E39D600ED7423 /* Conditional_Variable.hpp */,
+				8094D1D82B833BE100ED7423 /* Singleton.h */,
+				8094D1F32B83E81300ED7423 /* Atomic.cpp */,
+				8094D1F42B83E81300ED7423 /* Atomic.hpp */,
 			);
 			path = Threads;
 			sourceTree = "<group>";
@@ -140,7 +152,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8094D1D72B7E39D600ED7423 /* Conditional_Variable.cpp in Sources */,
 				8022B1BC2B7A7DBB00D04163 /* Deadlock.cpp in Sources */,
+				8094D1F52B83E81300ED7423 /* Atomic.cpp in Sources */,
 				8022B1B92B7A6E0A00D04163 /* Lock.cpp in Sources */,
 				80EC04AD2B793A2F0039AA2A /* Threads.cpp in Sources */,
 				8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */,
@@ -262,9 +276,15 @@
 		80EC048F2B6F9C2F0039AA2A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				HEADER_SEARCH_PATHS = /opt/homebrew/include;
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/lib;
+				OTHER_LDFLAGS = (
+					"-lboost_filesystem",
+					"-lboost_system",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -272,9 +292,15 @@
 		80EC04902B6F9C2F0039AA2A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				HEADER_SEARCH_PATHS = /opt/homebrew/include;
+				LIBRARY_SEARCH_PATHS = /opt/homebrew/lib;
+				OTHER_LDFLAGS = (
+					"-lboost_filesystem",
+					"-lboost_system",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

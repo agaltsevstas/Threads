@@ -294,7 +294,8 @@ TODO
 
 # Лекции:
 [Лекция 5. Multithreading in C++ (потоки, блокировки, задачи, атомарные операции, очереди сообщений)](https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3) <br/>
-[Лекция 9. OpenMP и Intel TBB](https://www.youtube.com/watch?v=_MKbLk6K_Tk&t=2627s&ab_channel=ComputerScienceCenter)
+[Лекция 9. OpenMP и Intel TBB](https://www.youtube.com/watch?v=_MKbLk6K_Tk&t=2627s&ab_channel=ComputerScienceCenter) <br/>
+[Модель памяти C++ - Андрей Янковский](https://www.youtube.com/watch?v=SIZmLPtcZiE&ab_channel=YandexforDevelopers) <br/>
 
 # Сайты: 
 [Multithreading](https://habr.com/ru/companies/otus/articles/549814/) <br/>
@@ -302,3 +303,8 @@ TODO
 [difference between std::mutex and std::shared_mutex](https://stackoverflow.com/questions/46452973/difference-between-stdmutex-and-stdshared-mutex) <br/>
 [Does std::shared_mutex favor writers over readers?](https://stackoverflow.com/questions/57706952/does-stdshared-mutex-favor-writers-over-readers) <br/>
 [why std::lock() supports deallock avoidence but std::try_lock() does not?](https://stackoverflow.com/questions/50286056/why-stdlock-supports-deallock-avoidence-but-stdtry-lock-does-not) <br/>
+[std::atomic. Модель памяти C++ в примерах](https://habr.com/ru/articles/517918/) <br/>
+[std::conditional_variable и std::atomic_flag в С++20](https://habr.com/ru/articles/708918/) <br/>
+[std::condition_variable::notify_all() - I need an example](https://stackoverflow.com/questions/43759609/stdcondition-variablenotify-all-i-need-an-example) <br/>
+[How std::atomic wait operation works?](https://stackoverflow.com/questions/70812376/how-stdatomic-wait-operation-works) <br/>
+[Spurious wakeup with atomics and condition_variables](https://stackoverflow.com/questions/72194964/spurious-wakeup-with-atomics-and-condition-variables) <br/>

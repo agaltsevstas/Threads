@@ -59,21 +59,21 @@ namespace LOCK
             // 1 Способ: обычный
             {
                 auto PrintSymbol = [&mutex](char c)
+                {
+                    std::unique_lock lock1(mutex);
+                    std::unique_lock lock2(mutex, std::try_to_lock);
+                    auto owns_lock = lock2.owns_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
+                    for (int i = 0; i < 10; ++i)
                     {
-                        std::unique_lock lock1(mutex);
-                        std::unique_lock lock2(mutex, std::try_to_lock);
-                        auto owns_lock = lock2.owns_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
-                        for (int i = 0; i < 10; ++i)
-                        {
-                            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                            std::cout << c;
-                        }
+                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                        std::cout << c;
+                    }
 
-                        std::cout << std::endl;
-                        lock1.unlock(); // потому что далее идет задержка
+                    std::cout << std::endl;
+                    lock1.unlock(); // потому что далее идет задержка
 
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                    };
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                };
 
                 std::thread thread1(PrintSymbol, '+');
                 std::thread thread2(PrintSymbol, '-');
