@@ -243,18 +243,30 @@ int main()
             /*
              Исключения (std::exception) в разных потоках (std::thread) - не пересекаются. Чтобы пробросить исключение в главный поток можно использовать:
              - std::exception_ptr - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
-             - std::rethrow_exception - пробрасывает исключение в другой try/catch.
+             - std::rethrow_exception() - пробрасывает исключение в другой try/catch.
              - std::stack<std::exception_ptr> - сохраняет исключение из другого потока.
+             - std::uncaught_exceptions() - возвращает кол-во неперехваченных исключений в текущем потоке, помогает избежать double exception в деструкторе, написав проверку if (!std::uncaught_exceptions()) throw.
+             Решение: в деструкторе должна быть гаранти
              */
             {
                 // Перехват исключений (exception catching)
                 {
+                    struct DoubleException
+                    {
+                        ~DoubleException()
+                        {
+                            if (int count = std::uncaught_exceptions(); count == 0)
+                                throw std::runtime_error("Dobule exception");
+                        }
+                    };
+                    
                     std::cout << "Перехват исключений (exception catching)" << std::endl;
                     std::stack<std::exception_ptr> exception_queue;
-                    auto Function = [&exception_queue]()
+                    auto Function = [&]()
                     {
                         try
                         {
+                            DoubleException doubleException;
                             throw std::runtime_error("Test exception");
                         }
                         catch (...)

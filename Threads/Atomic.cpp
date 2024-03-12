@@ -23,18 +23,24 @@ namespace atomic
             {
                 while(_flag);
                 bool expected = false;
+                // LOAD (no) ↑ STORE (no)
                 _flag.compare_exchange_strong(expected, true);
+                // LOAD (no) ↓ STORE (no)
             }
             
             bool Try_lock() noexcept
             {
                 bool expected = false;
+                // LOAD (no) ↑ STORE (no)
                 return _flag.compare_exchange_strong(expected, true);
+                // LOAD (no) ↓ STORE (no)
             }
             
             void Unlock() noexcept
             {
+                // LOAD (no) ↑ STORE (no)
                 _flag = false;
+                // LOAD (no) ↓ STORE (no)
             }
             
         private:
@@ -51,19 +57,25 @@ namespace atomic
             void Lock()
             {
                 bool expected = false;
+                // LOAD (no) ↑ STORE (no)
                 while (!_flag.compare_exchange_weak(expected, true, std::memory_order_acquire)) // может быть ложное срабатывания
+                // LOAD (no) ↓ STORE (yes)
                     expected = false;
             }
             
             void Try_lock()
             {
                 bool expected = false;
+                // LOAD (no) ↑ STORE (no)
                 _flag.compare_exchange_weak(expected, true, std::memory_order_acquire);
+                // LOAD (no) ↓ STORE (yes)
             }
          
             void Unlock()
             {
+                // LOAD (yes) ↑ STORE (no)
                 _flag.store(false, std::memory_order_release);
+                // LOAD (no) ↓ STORE (no)
             }
          
         private:
@@ -83,18 +95,24 @@ namespace atomic
             
             void Lock() noexcept
             {
+                // LOAD (no) ↑ STORE (no)
                 if (_flag.test_and_set(std::memory_order_acquire)) // read
+                // LOAD (no) ↓ STORE (yes)
                     _flag.wait(true);
             }
             
             bool Try_lock() noexcept
             {
+                // LOAD (no) ↑ STORE (no)
                 return !_flag.test_and_set(std::memory_order_acquire);
+                // LOAD (no) ↓ STORE (yes)
             }
             
             void Unlock() noexcept
             {
+                // LOAD (yes) ↑ STORE (no)
                 _flag.clear(std::memory_order_release); // write
+                // LOAD (no) ↓ STORE (no)
                 _flag.notify_one();
             }
             
@@ -116,18 +134,24 @@ namespace atomic_flag
         
         void Lock() noexcept
         {
+            // LOAD (no) ↑ STORE (no)
             if (_flag.test_and_set(std::memory_order_acquire)) // read
+            // LOAD (no) ↓ STORE (yes)
                 _flag.wait(true);
         }
         
         bool Try_lock() noexcept
         {
+            // LOAD (no) ↑ STORE (no)
             return !_flag.test_and_set(std::memory_order_acquire);
+            // LOAD (no) ↓ STORE (yes)
         }
         
         void Unlock() noexcept
         {
+            // LOAD (yes) ↑ STORE (no)
             _flag.clear(std::memory_order_release); // write
+            // LOAD (no) ↓ STORE (no)
             _flag.notify_one();
         }
         
@@ -174,14 +198,18 @@ void PrintSymbol(char c, TSpinlock& spinlock)
  - fetch_or - побитовое ИЛИ между значением и atomic и возвращение старого значения.
  - fetch_xor - побитовое исключающее ИЛИ между значением и atomic и возвращение старого значения.
  
- Отличие от std::condition_variable: std::atomic использует цикл активного ожидания, что приводит к трате процессорного времени на ожидание освобождения блокировки другим потоком, но тратит меньше времени на процедуру блокировки потока, т.к. не требуется задействование планировщика задач (Scheduler) с переводом потока в заблокированное состояние через походы в ядро процессора.
+ Плюсы:
+ - более эффективные и легкие и не требуют std::mutex.
+ - ожидание захвата блокировки предполагается недолгим.
+ Минусы:
+ - при длительной блокировке невыгоден - пустая трата процессорных ресурсов.
  
+ Отличие от std::condition_variable: std::atomic использует цикл активного ожидания, что приводит к трате процессорного времени на ожидание освобождения блокировки другим потоком, но тратит меньше времени на процедуру блокировки потока, т.к. не требуется задействование планировщика задач (Scheduler) с переводом потока в заблокированное состояние через походы в ядро процессора.
  */
 
 /*
  Для оптимизации работы с памятью у каждого ядра имеется его личный кэш памяти, над ним стоит общий кэш памяти процессора, далее оперативная память. Задача синхронизации памяти между ядрами - поддержка консистентного представления данных на каждом ядре (в каждом потоке). Если применить строгую упорядоченность изменений памяти, то операции на разных ядрах уже не будут выполнятся параллельно: остальные ядра будут ожидать, когда одно ядро выполнит изменения данных. Поэтому процессоры поддерживают работу с памятью с менее строгими гарантиями консистентности памяти. Разработчику предоставляется выбор: гарантии по доступу к памяти из разных потоков требуются для достижения максимальной корректности и производительности многопоточной программы.
  Модели памяти в std::atomic - это гарантии корректности доступа к памяти из разных потоков. По-умолчанию компилятор предполагает, что работа идет в одном потоке и код будет выполнен последовательно, но компилятор может переупорядочить команды программы с целью оптимизации. Поэтому в многопоточности требуется соблюдать правила упорядочивания доступа к памяти, что позволяет с синхронизировать потоки с определенной степенью синхронизации без использования дорогостоящего std::mutex.
- Преимущества: более эффективные и легкие и не требуют std::mutex.
  */
 
 namespace ATOMIC
@@ -364,12 +392,16 @@ namespace ATOMIC
                         
                         auto Write = [&]()
                         {
+                            // LOAD (yes) ↑ STORE (yes)
                             count.fetch_add(1, std::memory_order_relaxed); // запись
+                            // LOAD (yes) ↓ STORE (yes)
                         };
                         
                         auto Read = [&]()
                         {
+                            // LOAD (yes) ↑ STORE (yes)
                             std::cout << "Read count = " << count.load(std::memory_order_relaxed) << std::endl;
+                            // LOAD (yes) ↓ STORE (yes)
                         };
                         
                         std::thread thread1(Write);

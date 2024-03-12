@@ -17,10 +17,11 @@ std::jthread - по сравнению с std::thread преимущества:
 
 ## std::exception
 Исключения (std::exception) в разных потоках (std::thread) - не пересекаются. Чтобы пробросить исключение в главный поток можно использовать:
-- ```std::current_exception``` - получение текущего exception.
+- ```std::current_exception()``` - получение текущего exception.
 - ```std::exception_ptr``` - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
 - ```std::rethrow_exception``` - пробрасывает исключение в другой try/catch.
 - ```std::stack<std::exception_ptr>``` - сохраняет исключение из другого потока.
+- ```std::uncaught_exceptions()``` - возвращает кол-во неперехваченных исключений в текущем потоке, помогает избежать double exception в деструкторе, написав проверку if (!std::uncaught_exceptions()) throw.
 ```
 std::stack<std::exception_ptr> exception_queue;
 auto Function = [&exception_queue]()

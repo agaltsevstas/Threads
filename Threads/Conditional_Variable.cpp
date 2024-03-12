@@ -8,6 +8,53 @@
 #include <shared_mutex>
 #include <vector>
 
+namespace cv
+{
+    class Spinlock
+    {
+        Spinlock(const Spinlock&) = delete;
+        
+    public:
+        Spinlock() = default;
+        ~Spinlock() = default;
+        
+        void Lock() noexcept
+        {
+            std::unique_lock lock(_mutex);
+            _cv.wait(lock, [this] { return !_flag.exchange(true); });
+        }
+        
+        bool Try_lock() noexcept
+        {
+            return !_flag.exchange(true);
+        }
+        
+        void Unlock() noexcept
+        {
+            _cv.notify_one();
+            _flag = false;
+        }
+        
+    private:
+        std::atomic<bool> _flag;
+        std::mutex _mutex;
+        std::condition_variable _cv;
+    };
+}
+
+template <class TSpinlock>
+void PrintSymbol(char c, TSpinlock& spinlock)
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    spinlock.Lock();
+    for (int i = 0; i < 10; ++i)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::cout << c;
+    }
+    spinlock.Unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
 
 /*
  std::condition_variable (условная переменная) - механизм синхронизации между потоками, который работает ТОЛЬКО в паре mutex + std::unique_lock. Используется для блокировки одного или нескольких потоков с помощью wait/wait_for/wait_until куда помещается mutex lock до тех пор, пока другой поток не изменит общую переменную (условие) и не уведомит об этом condition_variable с помощью notify_one/notify_any,
@@ -28,6 +75,7 @@ namespace cv
 {
     void start()
     {
+        // std::condition_variable
         {
             std::cout << "std::condition_variable" << std::endl;
             std::mutex mutex;
@@ -170,6 +218,19 @@ namespace cv
                     
                     std::cout << std::endl;
                 }
+            }
+            // Spinlock
+            {
+                std::cout << "Spinlock" << std::endl;
+                
+                cv::Spinlock spinlock;
+                std::thread thread1([&] {PrintSymbol('+', spinlock);});
+                std::thread thread2([&] {PrintSymbol('-', spinlock);});
+                
+                thread1.join();
+                thread2.join();
+                
+                std::cout << std::endl;
             }
         }
         
