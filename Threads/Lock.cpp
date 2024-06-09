@@ -62,7 +62,7 @@ namespace LOCK
                 {
                     std::unique_lock lock1(mutex);
                     std::unique_lock lock2(mutex, std::try_to_lock);
-                    auto owns_lock = lock2.owns_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
+                    [[maybe_unused]] auto owns_lock = lock2.owns_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
                     for (int i = 0; i < 10; ++i)
                     {
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -180,7 +180,7 @@ namespace LOCK
                         {
                             mutex.lock();
                             std::unique_lock lock(mutex, std::adopt_lock); // lock не выполнется
-                            bool owns_lock = lock.owns_lock(); // true - это верно, std::mutex - lock
+                            [[maybe_unused]] bool owns_lock = lock.owns_lock(); // true - это верно, std::mutex - lock
                             for (int i = 0; i < 10; ++i)
                             {
                                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -200,7 +200,7 @@ namespace LOCK
             }
         }
         /*
-         std::shared_lock - имеет возможности std::unique_lock, но для std::shared_timed_mutex. Для обычного std::mutex не подойдет.
+         std::shared_lock - имеет возможности std::unique_lock, но для std::shared_mutex. Для обычного std::mutex не подходит.
          Делает общую блокировку (shared lock) - чтение данных из нескольких потоков одновременно. Если один поток получил общую блокировку, ни один другой поток не может получить эксклюзивную блокировку (exclusive lock) - запись данных только для одного потока одновременно, но может получить общую блокировку.
          */
         {

@@ -10,9 +10,14 @@
 		8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B42B7A6C4000D04163 /* Mutex.cpp */; };
 		8022B1B92B7A6E0A00D04163 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B72B7A6E0A00D04163 /* Lock.cpp */; };
 		8022B1BC2B7A7DBB00D04163 /* Deadlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */; };
-		8094D1D72B7E39D600ED7423 /* Conditional_Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */; };
+		807AC5E62C0704E900EA3D0E /* Interview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC5E42C0704E900EA3D0E /* Interview.cpp */; };
+		807AC64F2C13293500EA3D0E /* Promise_Future.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC64D2C13293500EA3D0E /* Promise_Future.cpp */; };
+		807AC66E2C1397F200EA3D0E /* Coroutine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC6682C1397F100EA3D0E /* Coroutine.cpp */; };
+		807AC6732C14468F00EA3D0E /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC6712C14468F00EA3D0E /* Semaphore.cpp */; };
+		807AC67F2C14ECB800EA3D0E /* Latch_Barrier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */; };
+		8094D1D72B7E39D600ED7423 /* Condition_Variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8094D1D52B7E39D600ED7423 /* Condition_Variable.cpp */; };
 		8094D1F52B83E81300ED7423 /* Atomic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8094D1F32B83E81300ED7423 /* Atomic.cpp */; };
-		80EC04AD2B793A2F0039AA2A /* Threads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80EC04AC2B793A2F0039AA2A /* Threads.cpp */; };
+		80EC04AD2B793A2F0039AA2A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 80EC04AC2B793A2F0039AA2A /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,15 +40,25 @@
 		8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Deadlock.cpp; sourceTree = "<group>"; };
 		8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Deadlock.hpp; sourceTree = "<group>"; };
 		8022B1BD2B7A836700D04163 /* shared_recursive_mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_recursive_mutex.h; sourceTree = "<group>"; };
+		807AC5E42C0704E900EA3D0E /* Interview.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Interview.cpp; sourceTree = "<group>"; };
+		807AC5E52C0704E900EA3D0E /* Interview.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Interview.hpp; sourceTree = "<group>"; };
+		807AC64D2C13293500EA3D0E /* Promise_Future.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Promise_Future.cpp; sourceTree = "<group>"; };
+		807AC64E2C13293500EA3D0E /* Promise_Future.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Promise_Future.hpp; sourceTree = "<group>"; };
+		807AC6682C1397F100EA3D0E /* Coroutine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Coroutine.cpp; sourceTree = "<group>"; };
+		807AC66C2C1397F200EA3D0E /* Coroutine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Coroutine.hpp; sourceTree = "<group>"; };
+		807AC6712C14468F00EA3D0E /* Semaphore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Semaphore.cpp; sourceTree = "<group>"; };
+		807AC6722C14468F00EA3D0E /* Semaphore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Semaphore.hpp; sourceTree = "<group>"; };
+		807AC67D2C14ECB700EA3D0E /* Latch_Barrier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Latch_Barrier.hpp; sourceTree = "<group>"; };
+		807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Latch_Barrier.cpp; sourceTree = "<group>"; };
 		8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
-		8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Conditional_Variable.cpp; sourceTree = "<group>"; };
-		8094D1D62B7E39D600ED7423 /* Conditional_Variable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Conditional_Variable.hpp; sourceTree = "<group>"; };
+		8094D1D52B7E39D600ED7423 /* Condition_Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Condition_Variable.cpp; sourceTree = "<group>"; };
+		8094D1D62B7E39D600ED7423 /* Condition_Variable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Condition_Variable.hpp; sourceTree = "<group>"; };
 		8094D1D82B833BE100ED7423 /* Singleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Singleton.h; sourceTree = "<group>"; };
 		8094D1F32B83E81300ED7423 /* Atomic.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Atomic.cpp; sourceTree = "<group>"; };
 		8094D1F42B83E81300ED7423 /* Atomic.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Atomic.hpp; sourceTree = "<group>"; };
 		80EC04872B6F9C2F0039AA2A /* Threads */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Threads; sourceTree = BUILT_PRODUCTS_DIR; };
 		80EC04912B6F9EDD0039AA2A /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
-		80EC04AC2B793A2F0039AA2A /* Threads.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Threads.cpp; sourceTree = "<group>"; };
+		80EC04AC2B793A2F0039AA2A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,20 +92,30 @@
 			isa = PBXGroup;
 			children = (
 				8022B1BD2B7A836700D04163 /* shared_recursive_mutex.h */,
-				80EC04AC2B793A2F0039AA2A /* Threads.cpp */,
 				80EC04912B6F9EDD0039AA2A /* Timer.h */,
-				8022B1B42B7A6C4000D04163 /* Mutex.cpp */,
 				8022B1B52B7A6C4000D04163 /* Mutex.hpp */,
-				8022B1B72B7A6E0A00D04163 /* Lock.cpp */,
+				8022B1B42B7A6C4000D04163 /* Mutex.cpp */,
 				8022B1B82B7A6E0A00D04163 /* Lock.hpp */,
-				8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */,
+				8022B1B72B7A6E0A00D04163 /* Lock.cpp */,
 				8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */,
+				8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */,
 				8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */,
-				8094D1D52B7E39D600ED7423 /* Conditional_Variable.cpp */,
-				8094D1D62B7E39D600ED7423 /* Conditional_Variable.hpp */,
+				8094D1D62B7E39D600ED7423 /* Condition_Variable.hpp */,
+				8094D1D52B7E39D600ED7423 /* Condition_Variable.cpp */,
 				8094D1D82B833BE100ED7423 /* Singleton.h */,
-				8094D1F32B83E81300ED7423 /* Atomic.cpp */,
 				8094D1F42B83E81300ED7423 /* Atomic.hpp */,
+				8094D1F32B83E81300ED7423 /* Atomic.cpp */,
+				807AC64E2C13293500EA3D0E /* Promise_Future.hpp */,
+				807AC64D2C13293500EA3D0E /* Promise_Future.cpp */,
+				807AC6722C14468F00EA3D0E /* Semaphore.hpp */,
+				807AC6712C14468F00EA3D0E /* Semaphore.cpp */,
+				807AC67D2C14ECB700EA3D0E /* Latch_Barrier.hpp */,
+				807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */,
+				807AC66C2C1397F200EA3D0E /* Coroutine.hpp */,
+				807AC6682C1397F100EA3D0E /* Coroutine.cpp */,
+				807AC5E52C0704E900EA3D0E /* Interview.hpp */,
+				807AC5E42C0704E900EA3D0E /* Interview.cpp */,
+				80EC04AC2B793A2F0039AA2A /* main.cpp */,
 			);
 			path = Threads;
 			sourceTree = "<group>";
@@ -122,7 +147,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					80EC04862B6F9C2F0039AA2A = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -152,12 +177,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8094D1D72B7E39D600ED7423 /* Conditional_Variable.cpp in Sources */,
+				807AC66E2C1397F200EA3D0E /* Coroutine.cpp in Sources */,
+				807AC64F2C13293500EA3D0E /* Promise_Future.cpp in Sources */,
+				8094D1D72B7E39D600ED7423 /* Condition_Variable.cpp in Sources */,
 				8022B1BC2B7A7DBB00D04163 /* Deadlock.cpp in Sources */,
 				8094D1F52B83E81300ED7423 /* Atomic.cpp in Sources */,
 				8022B1B92B7A6E0A00D04163 /* Lock.cpp in Sources */,
-				80EC04AD2B793A2F0039AA2A /* Threads.cpp in Sources */,
+				80EC04AD2B793A2F0039AA2A /* main.cpp in Sources */,
 				8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */,
+				807AC6732C14468F00EA3D0E /* Semaphore.cpp in Sources */,
+				807AC67F2C14ECB800EA3D0E /* Latch_Barrier.cpp in Sources */,
+				807AC5E62C0704E900EA3D0E /* Interview.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,7 +200,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -197,10 +227,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -214,7 +246,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				HEADER_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -228,7 +261,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -255,10 +288,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -266,7 +301,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				HEADER_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -278,9 +314,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				DEAD_CODE_STRIPPING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				HEADER_SEARCH_PATHS = /opt/homebrew/include;
 				LIBRARY_SEARCH_PATHS = /opt/homebrew/lib;
+				MACOSX_DEPLOYMENT_TARGET = 14.3;
 				OTHER_LDFLAGS = (
 					"-lboost_filesystem",
 					"-lboost_system",
@@ -294,9 +332,11 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++23";
 				CODE_SIGN_STYLE = Automatic;
-				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				DEAD_CODE_STRIPPING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				HEADER_SEARCH_PATHS = /opt/homebrew/include;
 				LIBRARY_SEARCH_PATHS = /opt/homebrew/lib;
+				MACOSX_DEPLOYMENT_TARGET = 14.3;
 				OTHER_LDFLAGS = (
 					"-lboost_filesystem",
 					"-lboost_system",

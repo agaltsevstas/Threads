@@ -120,19 +120,19 @@ namespace deadlock
              */
             {
                 auto function1 = [&]()
-                    {
-                        std::unique_lock lock1(mutex1, std::defer_lock);
-                        std::unique_lock lock2(mutex2, std::defer_lock);
-                        std::lock(lock1, lock2);
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // задержка, чтобы thread2 успел сделать lock в mutex2 в function2
-                    };
+                {
+                    std::unique_lock lock1(mutex1, std::defer_lock);
+                    std::unique_lock lock2(mutex2, std::defer_lock);
+                    std::lock(lock1, lock2);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // задержка, чтобы thread2 успел сделать lock в mutex2 в function2
+                };
                 auto function2 = [&]()
-                    {
-                        std::unique_lock lock1(mutex1, std::defer_lock);
-                        std::unique_lock lock2(mutex2, std::defer_lock);
-                        std::lock(lock2, lock1); // порядок неважен
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // задержка, чтобы thread1 успел сделать lock в mutex1
-                    };
+                {
+                    std::unique_lock lock1(mutex1, std::defer_lock);
+                    std::unique_lock lock2(mutex2, std::defer_lock);
+                    std::lock(lock2, lock1); // порядок неважен
+                    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // задержка, чтобы thread1 успел сделать lock в mutex1
+                };
                 std::thread thread1(function1);
                 std::thread thread2(function2);
 

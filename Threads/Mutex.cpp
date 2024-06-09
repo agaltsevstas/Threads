@@ -62,7 +62,7 @@ namespace MUTEX
                 auto PrintSymbol = [&mutex](char c)
                     {
                         mutex.lock();
-                        auto try_lock = mutex.try_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
+                        [[maybe_unused]] auto try_lock = mutex.try_lock(); // вернет false т.к. mutex уже захвачен, но не будет блокировки, потому что try_lock не блокирует
                         for (int i = 0; i < 10; ++i)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -219,7 +219,7 @@ namespace MUTEX
                 std::cout << "Неправильное использование try_lock_for: unlock разблокирует lock не дожидаясь времени" << std::endl;
                 auto PrintSymbol = [&mutex](char c)
                     {
-                        auto try_lock_for = mutex.try_lock_for(std::chrono::milliseconds(11)); // нет проверки на захват std::timed_mutex
+                        [[maybe_unused]] auto try_lock_for = mutex.try_lock_for(std::chrono::milliseconds(11)); // нет проверки на захват std::timed_mutex
                         for (int i = 0; i < 10; ++i)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -486,7 +486,6 @@ namespace MUTEX
                         std::this_thread::sleep_for(std::chrono::milliseconds(1));
                         std::cout << "std::shared_timed_mutex еще не освободился для записи! Потока: " << std::this_thread::get_id() << std::endl;
                     }
-                    
                 }
             };
             

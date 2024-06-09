@@ -1,11 +1,15 @@
 #include "Atomic.hpp"
-#include "Conditional_Variable.hpp"
+#include "Condition_Variable.hpp"
+#include "Coroutine.hpp"
+#include "Promise_Future.hpp"
+#include "Latch_Barrier.hpp"
 #include "Lock.hpp"
 #include "Deadlock.hpp"
+#include "Interview.hpp"
 #include "Mutex.hpp"
-
 #include "Singleton.h"
 #include "shared_recursive_mutex.h"
+#include "Semaphore.hpp"
 #include "Timer.h"
 #include "ThreadSafeQueue.h"
 
@@ -25,12 +29,14 @@
     #include <syncstream>
 #endif
 
-#include <boost/asio.hpp>
-
 
 /*
  Лекция: https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3
  Сайт: https://habr.com/ru/companies/otus/articles/549814/
+       http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx
+ 
+ Семафоры: https://www.geeksforgeeks.org/cpp-20-semaphore-header/
+           https://www.geeksforgeeks.org/std-barrier-in-cpp-20/
 */
 
 class MyClass
@@ -86,11 +92,12 @@ void Multi2(int number, int factor, int& result)
 
 int main()
 {
+    setlocale(LC_ALL, "Russian");
+    
     Timer timer;
     constexpr int size = 100;
     std::vector<int> numbers(size);
     std::iota(numbers.begin(), numbers.end(), 1);
-    setlocale(LC_ALL, "Russian");
 
     std::cout << "Кол-во возможных потоков на этом компьютере: " << std::thread::hardware_concurrency();
 
@@ -135,7 +142,7 @@ int main()
              Методы:
              - detach - разрывает связь между объектом thread и потоком, который начал выполняться. detach - не блокирует основной поток, не заставляя дожидаться окончания выполнения потока.
              - join - блокирует основной поток, заставляя дожидаться окончания выполнения потока.
-             - joinble - проверяет ассоциирован std::thread с потоком, если нет (не было detach или join или std::move) - возвращает true.
+             - joinable - проверяет ассоциирован std::thread с потоком, если нет (не было detach или join или std::move) - возвращает true.
              Замечание:
              - нельзя копировать
              - можно перемещать
@@ -146,9 +153,9 @@ int main()
                 {
                     /*
                      int sum;
-                     std::thread th(Work, 100); // Error: terminating
+                     std::thread thread(Work, 100); // Error: terminating
                      Work(10);
-                     // th.~thread() // Error: terminating, попытается вызваться деструктор и программа попытается закрыться из другого потока
+                     // thread.~thread() // Error: terminating, попытается вызваться деструктор и программа попытается закрыться из другого потока
                      */
                 }
                 // 2 Способ: detach - разрывает связь между объектом thread и потоком, который начал выполняться. detach - не блокирует основной поток, не заставляя дожидаться окончания выполнения потока.
@@ -244,7 +251,9 @@ int main()
              Исключения (std::exception) в разных потоках (std::thread) - не пересекаются. Чтобы пробросить исключение в главный поток можно использовать:
              - std::exception_ptr - обертка для исключения (std::exception), из нее ничего нельзя получить, только пробросить дальше с помощью std::rethrow_exception.
              - std::rethrow_exception() - пробрасывает исключение в другой try/catch.
-             - std::stack<std::exception_ptr> - сохраняет исключение из другого потока.
+             Сохранение исключений:
+                1 Способ: stack<exception_ptr> - сохраняет указатель на исключение (exception_ptr) из другого потока.
+                2 Способ: promise - сохраняет указатель на исключение (exception_ptr) из другого потока с помощью метода set_exception и выводит исключение с помощью std::future метода get.
              - std::uncaught_exceptions() - возвращает кол-во неперехваченных исключений в текущем потоке, помогает избежать double exception в деструкторе, написав проверку if (!std::uncaught_exceptions()) throw.
              Решение: в деструкторе должна быть гаранти
              */
@@ -253,7 +262,7 @@ int main()
                 {
                     struct DoubleException
                     {
-                        ~DoubleException()
+                        ~DoubleException() noexcept(false)
                         {
                             if (int count = std::uncaught_exceptions(); count == 0)
                                 throw std::runtime_error("Dobule exception");
@@ -261,31 +270,68 @@ int main()
                     };
                     
                     std::cout << "Перехват исключений (exception catching)" << std::endl;
-                    std::stack<std::exception_ptr> exception_queue;
-                    auto Function = [&]()
+                    
+                    // 1 Способ: std::stack<std::exception_ptr>
                     {
+                        std::cout << "1 Способ: std::stack<std::exception_ptr>" << std::endl;
+                        std::stack<std::exception_ptr> exception_queue;
+                        auto Function = [&]()
+                        {
+                            try
+                            {
+                                DoubleException doubleException;
+                                throw std::runtime_error("Test exception");
+                            }
+                            catch (...)
+                            {
+                                std::exception_ptr exception = std::current_exception();
+                                exception_queue.push(exception);
+                            }
+                        };
+                        
+                        std::thread thread(Function);
+                        thread.join();
+                        
+                        while (!exception_queue.empty())
+                        {
+                            try
+                            {
+                                auto exception = exception_queue.top();
+                                exception_queue.pop();
+                                std::rethrow_exception(exception);
+                            }
+                            catch (const std::exception& exception)
+                            {
+                                std::cout << "Exception: " << exception.what() << std::endl;
+                            }
+                        }
+                    }
+                    // 2 Способ: std::promise + std::future
+                    {
+                        std::cout << "2 Способ: std::promise + std::future" << std::endl;
+                        std::promise<int> promise;
+                        auto future = promise.get_future();
+                        
+                        auto Function = [&]()
+                        {
+                            try
+                            {
+                                DoubleException doubleException;
+                                throw std::runtime_error("Test exception");
+                            }
+                            catch (...)
+                            {
+                                std::exception_ptr exception = std::current_exception();
+                                promise.set_exception(exception);
+                            }
+                        };
+                        
+                        std::thread thread(Function);
+                        thread.join();
+                        
                         try
                         {
-                            DoubleException doubleException;
-                            throw std::runtime_error("Test exception");
-                        }
-                        catch (...)
-                        {
-                            std::exception_ptr exception = std::current_exception();
-                            exception_queue.push(exception);
-                        }
-                    };
-                    
-                    std::thread thread(Function);
-                    thread.join();
-                    
-                    while (!exception_queue.empty())
-                    {
-                        try
-                        {
-                            auto exception = exception_queue.top();
-                            exception_queue.pop();
-                            std::rethrow_exception(exception);
+                            future.get();
                         }
                         catch (const std::exception& exception)
                         {
@@ -407,16 +453,34 @@ int main()
             }
             
             /*
-             std::conditional_variable
+             std::condition_variable (условная переменная) - механизм синхронизации между потоками, который работает ТОЛЬКО в паре mutex + std::unique_lock. Используется для блокировки одного или нескольких потоков с помощью wait/wait_for/wait_until куда помещается mutex lock до тех пор, пока другой поток не изменит общую переменную (условие) и не уведомит об этом condition_variable с помощью notify_one/notify_any,
              */
             {
                 cv::start();
             }
             /*
-             std::atomic
+             std::atomic - атомарная операция. Операция называется атомарной, если операция выполнена целиком, либо не выполнена полностью, поэтому нет промежуточного состояние операции.
              */
             {
                 ATOMIC::Start();
+            }
+            /*
+             Семафор (semaphore) - механизм синхронизации работы потоков, который может управлять доступом к общему ресурсу. В основе семафора лежит счётчик, над которым можно производить две атомарные операции: увеличение и уменьшение кол-во потоков на единицу, при этом операция уменьшения для нулевого значения счётчика является блокирующей. Служит для более сложных механизмов синхронизации параллельно работающих задач. В качестве шаблонного параметра  указывается максимальное допустимое кол-во потоков. В конструкторе инициализируется счетчик - текущее допустимое кол-во потоков.
+             */
+            {
+                semaphore::start();
+            }
+            /*
+             Защелка (std::latch) - механизм синхронизации работы потоков, который может управлять доступом к общему ресурсу. В основе лежит уменьшающийся счетчик, значение счетчика инициализируется при создании. Потоки уменьшают значение счётчика и блокируются на защёлке до тех пор, пока счетчик не уменьшится до нуля. Нет возможности увеличить или сбросить счетчик, что делает защелку одноразовым барьером.
+             
+             Барьер (std::barrier) - механизм синхронизации работы потоков, который может управлять доступом к общему ресурсу. В основе лежит уменьшающийся счетчик, значение счетчика инициализируется при создании. Барьер блокирует потоки до тех пор, пока все потоки не уменьшат значение счётчика до нуля, как только ожидающие потоки разблокируются, значение счётчика устанавливается в начальное состояние и барьер может быть использован повторно.
+             
+             Отличия std::latch от std::barrier:
+             - std::latch может быть уменьшен одним потоком более одного раза.
+             - std::latch - можно использовать один раз, std::barrier является многоразовым: как только ожидающие потоки разблокируются, значение счётчика устанавливается в начальное состояние и барьер может быть использован повторно.
+             */
+            {
+                Latch_Barrier::Start();
             }
         }
         // Паралеллизм
@@ -536,191 +600,25 @@ int main()
         // Асинхронность
         {
             std::cout << "Асинхронность" << std::endl;
-
-            // Race condition/data race (состояние гонки) - обращение к общим данным в разных потоках одновременно
+            
             {
-                std::cout << "Race condition/data race (состояние гонки) - обращение к общим данным в разных потоках одновременно" << std::endl;
-                {
-                    auto PrintSymbol = [](char c)
-                        {
-                            for (int i = 0; i < 10; ++i)
-                                std::cout << c;
-                            std::cout << std::endl;
-                        };
-
-                    std::thread th1(PrintSymbol, '+');
-                    std::thread th2(PrintSymbol, '-');
-
-                    th1.join();
-                    th2.join();
-                }
-                /*
-                 std::future - позволяет дождаться вычисления результата. Работает по pull-модели, идет опрос, готовы ли данные. Позволяет не использовать std::mutex, std::condition_variable.
-                 Методы:
-                 - get -
-                 - valid -
-                 - share - можно переодически опрашивать готов ли std::future
-                 - swap -
-                 - wait - встанет и будет ждать
-                 - wait_for - готов ли результат через определенное время и возвращает future_status(ready, timeout, deferred).
-                 блокирует доступ к данным другим потокам на ОПРЕДЕЛЕННОЕ ВРЕМЯ и возвращает true - произошел захват mutex текущим потоком/false - нет; НО МОЖЕТ возвращать ложное значение, потому что в момент вызова try_lock_for std::timed_mutex может быть уже lock/unlock.
-                 - wait_until - спрашивает готов ли результат или нет в определенное время и возвращает future_status(ready, timeout, deferred)
-                 блокирует выполнение текущего потока до НАСТУПЛЕНИЕ МОМЕНТА ВРЕМЕНИ (например, 11:15:00) и возвращает true - произошел захват mutex текущим потоком/false - нет; НО МОЖЕТ возвращать ложное значение, потому что в момент вызова try_lock_until std::timed_mutex может быть уже lock/unlock.
-                 */
-                {
-                    // 1 Способ: std::promise - канал связи между текущим и основным потоками. Более удобный, чем std::mutex + std::condition_variable.
-                    {
-                        std::cout << "1 Способ: std::promise" << std::endl;
-                        auto Function = [](int factor, std::promise<int> result)
-                            {
-                                int sum = 0;
-                                for (int i = 0; i < 10; ++i)
-                                {
-                                    sum += Multi1(i, factor);
-                                }
-                                result.set_value(sum);
-                            };
-
-                        std::promise<int> promise1, promise2;
-                        std::future<int> future1 = promise1.get_future();
-                        std::future<int> future2 = promise2.get_future();
-                        std::thread thread1(Function, 2, std::move(promise1));
-                        std::thread thread2(Function, 3, std::move(promise2));
-
-                        // Если результат готов, то получение результата. Если результат не готов, то lock, до тех пор, пока результат не будет готов
-                        std::cout << "future1: " << future1.get() << std::endl;
-                        std::cout << "future2: " << future2.get() << std::endl;
-                        
-                        thread1.join();
-                        thread2.join();
-                    }
-                    // 2 Способ: std::packaged_task - оборачивает функцию и будет спрашивать результат сам. Работает как std::function + std::promise. Более удобный, чем std::promise.
-                    {
-                        std::cout << "2 Способ: std::packaged_task" << std::endl;
-                        auto Function = [](int factor)->int
-                            {
-                                int sum = 0;
-                                for (int i = 0; i < 10; ++i)
-                                {
-                                    sum += Multi1(i, factor);
-                                }
-                                
-                                return sum;
-                            };
-
-                        std::packaged_task<int(int)> task1(Function);
-                        std::packaged_task<int(int)> task2(Function);
-                        std::future<int> future1 = task1.get_future();
-                        std::future<int> future2 = task2.get_future();
-                        std::thread thread1(std::move(task1), 2);
-                        std::thread thread2(std::move(task2), 3);
-
-                        // Если результат готов, то получение результата. Если результат не готов, то lock, до тех пор, пока результат не будет готов
-                        std::cout << "future1: " << future1.get() << std::endl;
-                        std::cout << "future2: " << future2.get() << std::endl;
-                        
-                        thread1.join();
-                        thread2.join();
-                    }
-                    /*
-                     3 Способ: std::async + std::launch::async. Самый продвинутый способ: не нужны std::mutex, std::promise, std::packaged_task.
-                     Стратегии запуска:
-                     - std::launch::async - другой поток.
-                     - std::launch::deferred - текущий поток.
-                     - по умолчанию std::async выберет стратегию в зависимости от загруженности потоков, но лучше на это не полагаться
-                     Минусы:
-                     - std::async возвращает std::future которое содержит возвращаемое значение, которое будет вычисляться функцией. Когда это future будет уничтожено, он ждет, пока поток не завершится, делая ваш код эффективно одиночным. Это легко упустить из виду, когда вам не требуется возвращаемое значение.
-                     */
-                    {
-                        std::cout << "3 Способ: std::async + std::launch::async" << std::endl;
-                        std::cout << "Стратегии запуска:" << std::endl;
-                        std::cout << "- std::launch::async - другой поток" << std::endl;
-                        std::cout << "- std::launch::deferred - текущий поток" << std::endl;
-                        
-                        std::future<int> future1 = std::async(std::launch::async, Multi1, 10, 2);
-                        std::future<int> future2 = std::async(std::launch::deferred, Multi1, 11, 2);
-                        std::future<int> future3 = std::async(Multi1, 11, 2);
-                        
-                        std::cout << "future1 в другом потоке: " << future1.get() << std::endl;
-                        std::cout << "future2 в текущем потоке: " << future2.get() << std::endl;
-                        std::cout << "future3 по-умолчанию: " << future3.get() << std::endl;
-                    }
-                    // 4 Способ: Threadpool
-                    {
-                        std::cout << "4 Способ: Threadpool" << std::endl;
-                        std::vector<std::future<int>> futures;
-                        futures.reserve(10);
-                        int sum = 0;
-                        
-                        timer.start();
-                        for (int i = 0; i < 10; ++i)
-                            futures.emplace_back(std::async(std::launch::async, Multi1, i, 2));
-
-                        for (auto& future : futures)
-                            sum += future.get();
-
-                        timer.stop();
-                        std::cout << "1 Способ Future, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
-                    }
-                    // 5 Способ: Threadpool + lambda
-                    {
-                        std::cout << "4 Способ: Threadpool + lambda" << std::endl;
-                        std::vector<std::future<int>> futures;
-                        futures.reserve(10);
-                        int sum = 0;
-
-                        timer.start();
-                        for (int i = 0; i < size; ++i)
-                        {
-                            futures.emplace_back(std::async(std::launch::async, [numbers, i]()->int
-                                {
-                                    return numbers[i];
-                                }));
-                        }
-
-                        for (auto& future : futures)
-                            sum += future.get();
-
-                        timer.stop();
-                        std::cout << "3 Способ Future, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
-                    }
-                    
-                    std::cout << std::endl;
-                }
-#if defined (__APPLE__) || defined(__APPLE_CC__) || defined(__OSX__)
-                // 6 Способ: Push - модель (брокеры сообщений, очереди сообщений). Посчитать вычисления в другом потоке и этот поток уведомил (notification) о результате в основной поток. По в C++ пока нет ничего, только в boost::asio
-                {
-                    boost::asio::io_service io;
-                    
-                    std::cout << "6 Способ: очередь событий/сообщений" << std::endl;
-                    auto Function = [&io](const std::function<void(int&)>& handler, int factor)
-                        {
-                            std::cout << "Рассчет значения в другом потоке: " << std::this_thread::get_id() << std::endl;
-                            int sum = 0;
-                            for (int i = 0; i < 10; ++i)
-                            {
-                                sum += Multi1(i, factor);
-                            }
-                            
-                            io.post(std::bind(handler, sum)); // иногда не работает
-                        };
-                    
-                    auto PrintResult = [](int& result)
-                    {
-                        std::cout << "Result: " << result << ", в потоке: " << std::this_thread::get_id() << std::endl;
-                    };
-
-                    std::thread thread1(Function, PrintResult, 2);
-                    std::thread thread2(Function, PrintResult, 3);
-                    
-                    std::cout << "Разгребание очереди сообщений в потоке: " << std::this_thread::get_id() << std::endl;
-                    io.run();
-                    thread1.join();
-                    thread2.join();
-                }
-#endif
+                Promise_Future::Start();
             }
-            std::cout << std::endl;
+            
+            /*
+             Корутина (coroutine) - функция с несколькими точками входа и выхода, из нее можно выйти середине, а затем вернуться в нее и продолжить исполнение. По сути это объект, который может останавливаться и возобновляться. C++20: stackless, userserver (yandex): stackfull.
+              Gример — программы, выполняющие много операций ввода-вывода. Типичный пример — веб-сервер. Он вынужден общаться со многими клиентами одновременно, но при этом больше всего он занимается одним — ожиданием. Пока данные будут переданы по сети или получены, он ждёт. Если мы реализуем веб-сервер традиционным образом, то в нём на каждого клиента будет отдельный поток. В нагруженных серверах это будет означать тысячи потоков. Ладно бы все эти потоки занимались делом, но они по большей части приостанавливаются и ждут, нагружая операционную систему по самые помидоры переключением контекстов.
+             Характериситки:
+             - stackfull - держат свой стек в памяти на протяжении всего времени жизни корутины.
+             - stackless - не сохраняет свой стек в памяти на протяжении всего времени жизни корутины, а только во время непосредственной работы. При этом стек аллоцируется в вызывающем корутину контексте.
+             Методы:
+             - co_await — для прерывания функции и последующего продолжения.
+             - co_yield — для прерывания функции с одновременным возвратом результата. Это синтаксический сахар для конструкции с co_await.
+             - co_return — для завершения работы функции.
+             */
+            {
+                coroutine::start();
+            }
         }
         // Singleton
         {
@@ -736,7 +634,7 @@ int main()
                 std::thread thread1(CreateSingleton);
                 std::thread thread2(CreateSingleton);
                 
-                auto instance = antipattern::Singleton::Instance();
+                [[maybe_unused]] auto instance = antipattern::Singleton::Instance();
                 thread1.join();
                 thread2.join();
             }
@@ -751,11 +649,16 @@ int main()
                 std::thread thread1(CreateSingleton);
                 std::thread thread2(CreateSingleton);
                 
-                auto instance = antipattern::Singleton::Instance();
+                [[maybe_unused]] auto instance = antipattern::Singleton::Instance();
                 thread1.join();
                 thread2.join();
             }
         }
+    }
+    std::cout << std::endl;
+    // Задачи в интервью
+    {
+        interview::start();
     }
 
     return 0;

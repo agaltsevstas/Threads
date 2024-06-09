@@ -180,7 +180,7 @@ void PrintSymbol(char c, TSpinlock& spinlock)
  spurious wakeup (ложные пробуждения) - пробуждение потока без веской причины. Это происходит потому что между моментом сигнала от std::atomic и моментом запуска ожидающего потока, другой поток запустился и изменил условие, вызвав состояние гонки. Если поток просыпается вторым, он проиграет гонку и произойдет ложное пробуждение. После wait рекомендуют всегда проверять истинность условие пробуждения в цикле или в предикате.
  
  Методы:
- - is_lock_free - TODO
+ - is_lock_free - возвращает значение: true - атомарные операции над объектами этого типа не блокируются / false - нет (например, член класса - массив)
  - store - запись значения.
  - load - возвращение значения.
  - exchange - замена значения и возвращение старого значения.
@@ -208,6 +208,7 @@ void PrintSymbol(char c, TSpinlock& spinlock)
  */
 
 /*
+ MEMORY ORDER:
  Для оптимизации работы с памятью у каждого ядра имеется его личный кэш памяти, над ним стоит общий кэш памяти процессора, далее оперативная память. Задача синхронизации памяти между ядрами - поддержка консистентного представления данных на каждом ядре (в каждом потоке). Если применить строгую упорядоченность изменений памяти, то операции на разных ядрах уже не будут выполнятся параллельно: остальные ядра будут ожидать, когда одно ядро выполнит изменения данных. Поэтому процессоры поддерживают работу с памятью с менее строгими гарантиями консистентности памяти. Разработчику предоставляется выбор: гарантии по доступу к памяти из разных потоков требуются для достижения максимальной корректности и производительности многопоточной программы.
  Модели памяти в std::atomic - это гарантии корректности доступа к памяти из разных потоков. По-умолчанию компилятор предполагает, что работа идет в одном потоке и код будет выполнен последовательно, но компилятор может переупорядочить команды программы с целью оптимизации. Поэтому в многопоточности требуется соблюдать правила упорядочивания доступа к памяти, что позволяет с синхронизировать потоки с определенной степенью синхронизации без использования дорогостоящего std::mutex.
  */
@@ -217,7 +218,7 @@ namespace ATOMIC
     // По возрастанию строгости
     enum memory_order
     {
-        memory_order_relaxed, // Все можно делать
+        memory_order_relaxed, // Все можно делать: можно пускать вниз/вверх операцию LOAD/STORE.
         memory_order_consume, // Упрощенный memory_order_acquire, гарантирует, что операции будут выполняться в правильном порядке только те, которые зависят от одних данных.
         memory_order_acquire, // Можно пускать вниз операцию STORE, но нельзя операцию LOAD и никакую операцию вверх.
         memory_order_release, // Можно пускать вверх операцию LOAD, но нельзя операцию STORE и никакую операцию вниз.
@@ -246,15 +247,26 @@ namespace ATOMIC
             
             ++number2;
             /* Generated x86-64 assembly:
-                mov     eax, 1
-                lock xadd       DWORD PTR _ZL2v2[rip], eax
+                mov        eax, 1
+                lock xadd  DWORD PTR _ZL2v2[rip], eax
             */
+        }
+        // is_lock_free - возвращает значение: true - атомарные операции над объектами этого типа не блокируются / false - нет (например, член класса - массив)
+        {
+            class A { int a[100]; }; // член класса - массив
+            class B { int x, y; };
+            
+            std::cout << std::boolalpha
+                      << "std::atomic<A> is lock free? "
+                      << std::atomic<A>{}.is_lock_free() << std::endl
+                      << "std::atomic<B> is lock free? "
+                      << std::atomic<B>{}.is_lock_free() << std::endl;
         }
         // exchange - замена значения
         {
             std::atomic<bool> flag = false;
-            bool exchange1 = flag.exchange(true); // false
-            bool exchange2 = flag.exchange(false); // true
+            [[maybe_unused]] bool exchange1 = flag.exchange(true); // false
+            [[maybe_unused]] bool exchange2 = flag.exchange(false); // true
         }
         /*
          - compare_exchange_weak(expected, desired) - сравнивает значение atomic с аргументом expected. Если значения совпадают, то desired записывается в atomic и возвращается true. Если значения НЕ совпадают, то в аргумент expected записывается значение atomic и возвращается false. Возможны ложные пробуждения (spurious wakeup).
@@ -266,12 +278,12 @@ namespace ATOMIC
                 std::cout << "Возможности compare_exchange_strong" << std::endl;
                 std::atomic<bool> flag = false;
                 bool expected = false;
-                bool exchanged1 = flag.compare_exchange_strong(expected, true); // flag == true, expected == true, exchanged == true
+                [[maybe_unused]] bool exchanged1 = flag.compare_exchange_strong(expected, true); // flag == true, expected == true, exchanged == true
                 
                 expected = false;
-                bool exchanged2 = flag.compare_exchange_strong(expected, true); // flag == true, expected == true, exchanged == false
-                bool exchanged3 = flag.compare_exchange_strong(expected, false); // flag == false, expected == true, exchanged == true
-                bool exchanged4 = flag.compare_exchange_strong(expected, false); // flag == false, expected == false, exchanged == false
+                [[maybe_unused]] bool exchanged2 = flag.compare_exchange_strong(expected, true); // flag == true, expected == true, exchanged == false
+                [[maybe_unused]] bool exchanged3 = flag.compare_exchange_strong(expected, false); // flag == false, expected == true, exchanged == true
+                [[maybe_unused]] bool exchanged4 = flag.compare_exchange_strong(expected, false); // flag == false, expected == false, exchanged == false
             }
             
             // Spinlock + compare_exchange_strong
@@ -567,16 +579,17 @@ namespace ATOMIC
 
 /*
  std::atomic_flag - атомарная булева операция. Операция называется атомарной, если операция выполнена целиком, либо не выполнена полностью, поэтому нет промежуточного состояние операции.
-    Методы:
-    - clear - сбрасывает значение в false.
-    - test - возвращение значения.
-    - test_and_set - устанавливает значение true и возвращает предыдущее значение.
-    - wait - блокирует поток до тех пор, пока не будет уведомления notify_one/notify_all и не изменится значение. Например, wait(true) блокируется при значении true, разблокируется при значении false. wait(false) блокируется при значении false, разблокируется при значении true. Ложные пробуждения базовой реализация wait скрыты в стандартной библиотеки STL, поэтому std::wait не имеет ложных пробуждений. Внутри std::wait повторно выполняются действия по порядку:
-        1. сравнивает значение со старым значение -> пункт 1.
-        2. если они != то возврат из функции или -> пункт 3.
-        3. блокируется до тех пор, пока он не будет разблокирован notify_one/notify_all или не будет разблокирован ложно -> пункт 1.
-    - notify_one - снятие блокировки, ожидание 1 потока. Например, 1 писатель или много писателей.
-    - notify_all - ожидание многих потоков. Например, много читаталей.
+ 
+ Методы:
+ - clear - сбрасывает значение в false.
+ - test - возвращение значения.
+ - test_and_set - устанавливает значение true и возвращает предыдущее значение.
+ - wait - блокирует поток до тех пор, пока не будет уведомления notify_one/notify_all и не изменится значение. Например, wait(true) блокируется при значении true, разблокируется при значении false. wait(false) блокируется при значении false, разблокируется при значении true. Ложные пробуждения базовой реализация wait скрыты в стандартной библиотеки STL, поэтому std::wait не имеет ложных пробуждений. Внутри std::wait повторно выполняются действия по порядку:
+     1. сравнивает значение со старым значение -> пункт 1.
+     2. если они != то возврат из функции или -> пункт 3.
+     3. блокируется до тех пор, пока он не будет разблокирован notify_one/notify_all или не будет разблокирован ложно -> пункт 1.
+ - notify_one - снятие блокировки, ожидание 1 потока. Например, 1 писатель или много писателей.
+ - notify_all - ожидание многих потоков. Например, много читаталей.
  */
 
 namespace ATOMIС_FLAG
@@ -587,12 +600,12 @@ namespace ATOMIС_FLAG
         
         // Базовые операции
         {
-            std::atomic_flag flag = false;
-            auto test1 = flag.test(); // false
-            auto test2 = flag.test_and_set(); // test == false, flag == true
-            auto test3 = flag.test(); // true
+            std::atomic_flag flag = ATOMIC_FLAG_INIT;
+            [[maybe_unused]] auto test1 = flag.test(); // false
+            [[maybe_unused]] auto test2 = flag.test_and_set(); // test == false, flag == true
+            [[maybe_unused]] auto test3 = flag.test(); // true
             flag.clear(); // false
-            auto test4 = flag.test(); // false
+            [[maybe_unused]] auto test4 = flag.test(); // false
         }
         
         atomic_flag::Spinlock spinlock;

@@ -1,4 +1,4 @@
-#include "Conditional_Variable.hpp"
+#include "Condition_Variable.hpp"
 
 #include <condition_variable>
 #include <iostream>
@@ -142,9 +142,9 @@ namespace cv
             // notify_all
             {
                 std::cout << "notify_all" << std::endl;
-                // Обычный способ
+                // 1 Способ: обычный
                 {
-                    std::cout << "Обычный способ" << std::endl;
+                    std::cout << "1 Способ: Обычный" << std::endl;
                     std::string data;
                     
                     auto SetSymbol = [&](const std::string& iSymbols)
@@ -158,7 +158,6 @@ namespace cv
                         cv.notify_all(); // разрешаем всем потокам
                     };
                     
-                    std::cout << "2 Способ: с предикатом" << std::endl;
                     auto PrintSymbol = [&](int indexThread)
                     {
                         std::unique_lock lock(mutex);
@@ -178,9 +177,9 @@ namespace cv
                     
                     std::cout << std::endl;
                 }
-                // Реализация семафора: обработка потоков по 2 штуки
+                // 2 Способ: реализация семафора - обработка потоков по 2 штуки
                 {
-                    std::cout << "Реализация семафора: обработка потоков по 2 штуки" << std::endl;
+                    std::cout << "2 Способ: реализация семафора - обработка потоков по 2 штуки" << std::endl;
                     int countThread = 0;
                     
                     auto PrintSymbol = [&](const std::string& data)
@@ -216,6 +215,42 @@ namespace cv
                             thread.join();
                     }
                     
+                    std::cout << std::endl;
+                }
+                /*
+                 3 Способ: std::notify_all_at_thread_exit - принимает в качестве аргументов std::condition_variable и std::unique_lock. При завершении потока и выхода из стека, когда все деструкторы локальных (по отношению к потоку) объектов отработали, выполняется notify_all в захваченном condition_variable. Поток, вызвавший std::notify_all_at_thread_exit, будет обладать mutex до самого завершения, поэтому необходимо позаботиться о том, чтобы не произошёл deadlock где-нибудь в другом месте. std::notify_all_at_thread_exit - использовать в редких случаях, когда необходимо гарантировать к определенному моменту уничтожение локальных объектов + нельзя использовать join у потока по какой-то причине.
+                 */
+                {
+                    std::cout << "3 Способ: использование std::notify_all_at_thread_exit" << std::endl;
+                    
+                    std::string data;
+                    
+                    auto SetSymbol = [&](const std::string& iSymbols)
+                    {
+                        std::unique_lock lock(mutex);
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                        data = iSymbols;
+                        std::notify_all_at_thread_exit(cv, std::move(lock));
+                    };
+                    
+                    auto PrintSymbol = [&](int indexThread)
+                    {
+                        std::unique_lock lock(mutex);
+                        cv.wait(lock, [&data](){ return !data.empty();}); // обработка ложных пробуждений (spurious wakeup)
+                        
+                        std::cout << "Индекс потока: " << indexThread << ", данные:" << data << std::endl;
+                        // data.clear();
+                    };
+                    
+                    std::thread threads[100];
+                    for (const auto i : std::views::iota(0, 100))
+                        threads[i] = std::thread(PrintSymbol, i);
+                    std::string symbols = {"++++++++++"};
+                    std::thread(SetSymbol, symbols).detach();
+                    for (auto& thread : threads)
+                        thread.detach();
+                    
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Чтобы PrintSymbol успел вывести данные, но не все
                     std::cout << std::endl;
                 }
             }

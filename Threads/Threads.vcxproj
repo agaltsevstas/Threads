@@ -142,18 +142,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Atomic.cpp" />
+    <ClCompile Include="Condition_Variable.cpp" />
+    <ClCompile Include="Coroutine.cpp" />
     <ClCompile Include="Deadlock.cpp" />
+    <ClCompile Include="Interview.cpp" />
+    <ClCompile Include="Latch_Barrier.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="Mutex.cpp" />
     <ClCompile Include="OpenMP.cpp" />
+    <ClCompile Include="Promise_Future.cpp" />
+    <ClCompile Include="Semaphore.cpp" />
     <ClCompile Include="TBB.cpp" />
-    <ClCompile Include="Threads.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Atomic.hpp" />
+    <ClInclude Include="Condition_Variable.hpp" />
+    <ClInclude Include="Coroutine.hpp" />
     <ClInclude Include="Deadlock.hpp" />
+    <ClInclude Include="Interview.hpp" />
+    <ClInclude Include="Latch_Barrier.hpp" />
     <ClInclude Include="Lock.hpp" />
     <ClInclude Include="Mutex.hpp" />
     <ClInclude Include="OpenMP.h" />
+    <ClInclude Include="Promise_Future.hpp" />
+    <ClInclude Include="Semaphore.hpp" />
     <ClInclude Include="shared_recursive_mutex.h" />
     <ClInclude Include="TBB.h" />
     <ClInclude Include="ThreadSafeQueue.h" />
