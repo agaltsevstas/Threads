@@ -1,5 +1,6 @@
 #include "Coroutine.hpp"
 
+#include <iostream>
 #include <coroutine>
 
 /*
@@ -19,18 +20,14 @@ namespace coroutine
 {
     void start()
     {
-        {
-            /*
-            auto getInts = [](int first, int last) -> std::generator<int>
-            {
-                for (auto i= first; i <= last; ++i){
-                    std::co_yield i;
-                }
-            }
-            
-            for (auto i: getInts(5, 10))
-                std::cout << i << " ";
-             */
-        }
+//        auto getInts = [](int first, int last)
+//        {
+//            for (auto i= first; i <= last; ++i){
+//                co_yield i;
+//            }
+//        }
+//        
+//        for (auto i: getInts(5, 10))
+//            std::cout << i << " ";
     }
 }
