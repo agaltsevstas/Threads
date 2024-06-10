@@ -538,8 +538,15 @@ Threading Building Blocks - библиотека Intel, является выс�
 [Лекция 9. OpenMP и Intel TBB](https://www.youtube.com/watch?v=_MKbLk6K_Tk&t=2627s&ab_channel=ComputerScienceCenter) <br/>
 [Модель памяти C++ - Андрей Янковский](https://www.youtube.com/watch?v=SIZmLPtcZiE&ab_channel=YandexforDevelopers) <br/>
 
-# Сайты: 
+# Видео:
+[C++ Russia 2018: Иван Пузыревский, Асинхронность в программировании](https://www.youtube.com/watch?v=g7dno0SupKY&list=WL&index=2&ab_channel=C%2B%2BUserGroup) <br/>
+[ШБР 2023 — Асинхронное программирование (C++)](https://www.youtube.com/watch?v=DQ72ZyPqHRc) <br/>
+[Изучение С++ {#28}. Многопоточность. Задачи. std::async. Уроки C++.](https://www.youtube.com/watch?v=OX1WyFl3y64&ab_channel=cppProsto) <br/>
+[C++11 STL: Future - Ожидание события (Многопоточность)](https://www.youtube.com/watch?v=vBxj-HK39Bo&ab_channel=EfremovEngineer) <br/>
+
+# Сайты:
 [Multithreading](https://habr.com/ru/companies/otus/articles/549814/) <br/>
+[Субъективный объективизм](http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx) <br/>
 [shared_mutex](https://en.cppreference.com/w/cpp/thread/shared_mutex) <br/>
 [difference between std::mutex and std::shared_mutex](https://stackoverflow.com/questions/46452973/difference-between-stdmutex-and-stdshared-mutex) <br/>
 [Does std::shared_mutex favor writers over readers?](https://stackoverflow.com/questions/57706952/does-stdshared-mutex-favor-writers-over-readers) <br/>
