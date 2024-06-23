@@ -5,7 +5,6 @@
 #include "Latch_Barrier.hpp"
 #include "Lock.hpp"
 #include "Deadlock.hpp"
-#include "Interview.hpp"
 #include "Mutex.hpp"
 #include "Singleton.h"
 #include "shared_recursive_mutex.h"
@@ -33,6 +32,7 @@
 /*
  Лекция: https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3
  Сайт: https://habr.com/ru/companies/otus/articles/549814/
+       https://habr.com/ru/articles/182626/
        http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx
  
  Семафоры: https://www.geeksforgeeks.org/cpp-20-semaphore-header/
@@ -571,9 +571,9 @@ int main()
             }
 #if defined(_MSC_VER) || defined(_MSC_FULL_VER) || defined(_WIN32) || defined(_WIN64)
             /*
-              OpenMP(Open Multi - Processing) — это библиотека, используемая для многопоточности на уровне цикла.
+              OpenMP(Open Multi-Processing) — это библиотека, используемая для многопоточности на уровне цикла.
               Использование параллельной версии STL (все алгоритмы внутри поддерживают OpenMP и будут выполняться параллельно), для этого нужно передать libstdc++ parallel в компилятор GCC.
-              До цикла for будет определено кол-во ядер в системе. Код внутри for будет выделен в отдельную функцию (НЕ сам For!!! try catch бессмысленен - нельзя отловить исключение в отдельном потоке, break, continue, return - невозможны).
+              До цикла for будет определено кол-во ядер в системе. Код внутри for будет выделен в отдельную функцию, которая запустится в отдельном потоке (НЕ сам For!!! try catch бессмысленен - нельзя отловить исключение в отдельном потоке, break, continue, return - невозможны).
               В конце области видимости для каждого потока будет вызван join().
               Например для 10 ядерной системы будет запущено 10 потоков. При 10.000 итераций. Каждый поток обработает 1.000 / 10 = 1.000 элементов в контейнере.
               Не подходит:
@@ -659,10 +659,6 @@ int main()
         }
     }
     std::cout << std::endl;
-    // Задачи в интервью
-    {
-        interview::start();
-    }
 
     return 0;
 }

@@ -146,7 +146,6 @@
     <ClCompile Include="Condition_Variable.cpp" />
     <ClCompile Include="Coroutine.cpp" />
     <ClCompile Include="Deadlock.cpp" />
-    <ClCompile Include="Interview.cpp" />
     <ClCompile Include="Latch_Barrier.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="Mutex.cpp" />
@@ -161,7 +160,6 @@
     <ClInclude Include="Condition_Variable.hpp" />
     <ClInclude Include="Coroutine.hpp" />
     <ClInclude Include="Deadlock.hpp" />
-    <ClInclude Include="Interview.hpp" />
     <ClInclude Include="Latch_Barrier.hpp" />
     <ClInclude Include="Lock.hpp" />
     <ClInclude Include="Mutex.hpp" />

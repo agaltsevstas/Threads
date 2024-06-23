@@ -10,7 +10,6 @@
 		8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B42B7A6C4000D04163 /* Mutex.cpp */; };
 		8022B1B92B7A6E0A00D04163 /* Lock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1B72B7A6E0A00D04163 /* Lock.cpp */; };
 		8022B1BC2B7A7DBB00D04163 /* Deadlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */; };
-		807AC5E62C0704E900EA3D0E /* Interview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC5E42C0704E900EA3D0E /* Interview.cpp */; };
 		807AC64F2C13293500EA3D0E /* Promise_Future.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC64D2C13293500EA3D0E /* Promise_Future.cpp */; };
 		807AC66E2C1397F200EA3D0E /* Coroutine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC6682C1397F100EA3D0E /* Coroutine.cpp */; };
 		807AC6732C14468F00EA3D0E /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 807AC6712C14468F00EA3D0E /* Semaphore.cpp */; };
@@ -40,8 +39,6 @@
 		8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Deadlock.cpp; sourceTree = "<group>"; };
 		8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Deadlock.hpp; sourceTree = "<group>"; };
 		8022B1BD2B7A836700D04163 /* shared_recursive_mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shared_recursive_mutex.h; sourceTree = "<group>"; };
-		807AC5E42C0704E900EA3D0E /* Interview.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Interview.cpp; sourceTree = "<group>"; };
-		807AC5E52C0704E900EA3D0E /* Interview.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Interview.hpp; sourceTree = "<group>"; };
 		807AC64D2C13293500EA3D0E /* Promise_Future.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Promise_Future.cpp; sourceTree = "<group>"; };
 		807AC64E2C13293500EA3D0E /* Promise_Future.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Promise_Future.hpp; sourceTree = "<group>"; };
 		807AC6682C1397F100EA3D0E /* Coroutine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Coroutine.cpp; sourceTree = "<group>"; };
@@ -113,8 +110,6 @@
 				807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */,
 				807AC66C2C1397F200EA3D0E /* Coroutine.hpp */,
 				807AC6682C1397F100EA3D0E /* Coroutine.cpp */,
-				807AC5E52C0704E900EA3D0E /* Interview.hpp */,
-				807AC5E42C0704E900EA3D0E /* Interview.cpp */,
 				80EC04AC2B793A2F0039AA2A /* main.cpp */,
 			);
 			path = Threads;
@@ -187,7 +182,6 @@
 				8022B1B62B7A6C4000D04163 /* Mutex.cpp in Sources */,
 				807AC6732C14468F00EA3D0E /* Semaphore.cpp in Sources */,
 				807AC67F2C14ECB800EA3D0E /* Latch_Barrier.cpp in Sources */,
-				807AC5E62C0704E900EA3D0E /* Interview.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
