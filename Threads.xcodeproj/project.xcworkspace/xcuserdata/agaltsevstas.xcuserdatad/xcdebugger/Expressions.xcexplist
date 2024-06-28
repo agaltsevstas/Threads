@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "_ZN6FutureIZN14Promise_Future5StartEvE3$_0E4ThenIS1_JEEES_INSt3__113invoke_resultIu7__decayIT_EJDpu7__decayIT0_EEE4typeEENS4_6launchEOS6_DpOS8_:Promise_Future.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "result">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

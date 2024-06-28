@@ -5,6 +5,9 @@
 #include <future>
 #include <numeric>
 #include <vector>
+#include <future>
+#include <utility>
+#include <type_traits>
 
 #if defined (__APPLE__) || defined(__APPLE_CC__) || defined(__OSX__)
     #include <boost/asio.hpp>
@@ -13,8 +16,187 @@
 /*
  Видео: https://www.youtube.com/watch?v=g7dno0SupKY&list=WL&index=1&ab_channel=C%2B%2BUserGroup
         https://www.youtube.com/watch?v=DQ72ZyPqHRc
-        TODO: сделать умный future как в видео
  */
+
+namespace then
+{
+/// Функция,  осуществляющая запуск цепочки  (pipeline)  выполнения в будущем последовательных асинхронных
+/// Класс, связывающий результат значения в будущем с настоящим временем.
+ 
+    /*
+     Лекции: https://www.youtube.com/watch?v=g7dno0SupKY&t=2022s
+             https://www.youtube.com/watch?v=DQ72ZyPqHRc&t=1919s
+             
+     */
+    /*
+     Реализация Then: https://github.com/jaredhoberock/then
+                      https://scottroy.github.io/futures.html https://github.com/tirimatangi/Lazy/tree/main
+                      https://gist.github.com/iain17/529a091bb18dc76f936ff24edcac981c
+                      https://gist.github.com/hikarin522/e60bccbd424df5ed6f1298e85c519ea4
+                      https://github.com/thousandeyes/thousandeyes-futures/blob/master/include/thousandeyes/futures/then.h
+           
+     */
+
+    namespace first_implementation
+    {
+        /*
+         Класс, связывающий результат значения в будущем с настоящим временем. Then - осуществляет запуск цепочки  (pipeline) выполнения в будущем последовательных асинхронных.
+         Получение возвращаемого значения из std::function: https://ru.stackoverflow.com/questions/1306255
+         */
+        template <class T>
+        class Future
+        {
+        public:
+            
+            T Get()
+            {
+                return _future.get();
+            }
+
+            template <class TFunction>
+            auto Then(TFunction&& function)
+            {
+                return Then(std::launch::async | std::launch::deferred, std::forward<TFunction>(function));
+            }
+            
+            template <class TFunction>
+            auto Then(TFunction&& function, std::launch policy)
+            {
+                return Then(policy, std::forward<TFunction>(function));
+            }
+            
+        public:
+            template <class TFunction>
+            auto Then(std::launch policy, TFunction&& function)
+            {
+                Future<decltype(std::forward<TFunction>(function)(_future.get()))> future;
+                
+                future._future = std::async(policy, [](std::future<T>&& future, auto&& function)
+                {
+                    future.wait();
+                    return std::invoke(function, future.get());
+                },
+                std::move(_future), std::forward<TFunction>(function));
+                
+                return future;
+            }
+            
+        public:
+            std::future<T> _future;
+        };
+
+        template <class TFunction, class... TArgs>
+        Future<typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>>
+        MakeTask(TFunction&& function, TArgs&& ...args)
+        {
+            using R = typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>;
+            Future<R> future;
+            
+            future._future = std::async(std::launch::async | std::launch::deferred, [](TFunction&& function, TArgs&& ...args)
+            {
+                return std::invoke(std::forward<TFunction>(function), std::forward<TArgs>(args)...);
+            },
+            std::forward<TFunction>(function),
+            std::forward<TArgs>(args)...);
+            
+            return future;
+        };
+    }
+
+    namespace second_implementation
+    {
+        /*
+         Конвертирование lambda to function: https://gist.github.com/khvorov/cd626ea3685fd5e8bf14
+                                             https://cplusplus.com/forum/general/223816/
+         */
+        namespace detail
+        {
+            template <typename F>
+            struct function_traits : public function_traits<decltype(&F::operator())> {};
+
+            template <typename R, typename C, typename... Args>
+            struct function_traits<R(C::*)(Args...) const>
+            {
+                using function_type = std::function<R (Args...)>;
+            };
+        }
+
+        template <typename F>
+        using function_type_t = typename detail::function_traits<F>::function_type;
+
+        template <typename TLambda>
+        function_type_t<TLambda> lambda_to_function(TLambda& lambda) // Приводим lambda к std::function
+        {
+            return static_cast<function_type_t<TLambda>>(lambda);
+        }
+
+        template <class T>
+        class Future
+        {
+        public:
+            
+            T Get()
+            {
+                return _future.get();
+            }
+
+            template <class TFunction>
+            auto Then(TFunction&& function)
+            {
+                return Then(std::launch::async | std::launch::deferred, lambda_to_function(function));
+            }
+            
+            template <class TFunction>
+            auto Then(TFunction&& function, std::launch policy)
+            {
+                return Then(policy, lambda_to_function(function));
+            }
+            
+        public:
+            template <class R>
+            auto Then(std::launch policy, const std::function<R(const T&)>& function)
+            {
+                Future<R> future;
+                
+                future._future = std::async(policy, [](std::future<T>&& future, auto&& function)
+                {
+                    future.wait();
+                    return std::invoke(function, future.get());
+                },
+                std::move(_future), function);
+                
+                return future;
+            }
+            
+        public:
+            std::future<T> _future;
+        };
+
+        template <class TFunction, class... TArgs>
+        Future<typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>>
+        MakeTask(TFunction&& function, TArgs&& ...args)
+        {
+            using R = typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>;
+            Future<R> future;
+            
+            future._future = std::async(std::launch::async | std::launch::deferred, [](TFunction&& function, TArgs&& ...args)
+            {
+                return std::invoke(std::forward<TFunction>(function), std::forward<TArgs>(args)...);
+            },
+            std::forward<TFunction>(function),
+            std::forward<TArgs>(args)...);
+            
+            return future;
+        };
+    }
+
+    int function(const int& number)
+    {
+        return number * 100;
+    }
+}
+
+
 
 namespace Promise_Future
 {
@@ -29,7 +211,69 @@ namespace Promise_Future
         constexpr int size = 100;
         std::vector<int> numbers(size);
         std::iota(numbers.begin(), numbers.end(), 1);
-
+        
+        /*
+         Реализация future.then, где then осуществляет запуск цепочки выполнения в будущем последовательных асинхронных операций для вычисления промежуточных результатов.
+         */
+        {
+            using namespace then;
+            std::cout << "then" << std::endl;
+            
+            /// first implementation
+            {
+                // Вычисление (2v + 1)^ 2 * 100
+                
+                using namespace first_implementation;
+                std::cout << "first implementation" << std::endl;
+                
+                auto future = MakeTask([](int number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return 2 * number;
+                }, 1).
+                Then([](const int number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return number + 1;
+                }).
+                Then([](const int& number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return number * number;
+                }).
+                Then(function);
+                
+                auto result = future.Get();
+                std::cout << std::endl;
+            }
+            /// second implementation
+            {
+                // Вычисление (2v + 1)^ 2
+                
+                using namespace second_implementation;
+                std::cout << "second implementation" << std::endl;
+                
+                auto future = MakeTask([](const int& number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return 2 * number;
+                }, 1).
+                Then([](const int& number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return number + 1;
+                }).
+                Then([](const int& number)
+                {
+                    std::cout << "Поток: " << std::this_thread::get_id() << std::endl;
+                    return number * number;
+                })/*.
+                Then(function)*/; // Для обычных функций не работает
+                
+                [[maybe_unused]] auto result = future.Get();
+                std::cout << std::endl;
+            }
+        }
         // Race condition/data race (состояние гонки) - обращение к общим данным в разных потоках одновременно
         {
             std::cout << "Race condition/data race (состояние гонки) - обращение к общим данным в разных потоках одновременно" << std::endl;
