@@ -56,7 +56,7 @@ namespace semaphore
                 semaphore.acquire();
                 std::cout << "Индекс потока: " << indexThread << " acquired the semaphore" << std::endl;
                 std::this_thread::sleep_for(std::chrono::milliseconds(50));
-                semaphore.release();
+//                semaphore.release();
                 std::cout << "Индекс потока: " << indexThread << " released the semaphore" << std::endl;
             };
             

@@ -86,11 +86,11 @@ namespace then
         };
 
         template <class TFunction, class... TArgs>
-        Future<typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>>
+        Future<typename std::invoke_result_t<TFunction, TArgs...>>
         MakeTask(TFunction&& function, TArgs&& ...args)
         {
-            using R = typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>;
-            Future<R> future;
+            using Result = typename std::invoke_result_t<TFunction, TArgs...>;
+            Future<Result> future;
             
             future._future = std::async(std::launch::async | std::launch::deferred, [](TFunction&& function, TArgs&& ...args)
             {
@@ -117,7 +117,7 @@ namespace then
             template <typename R, typename C, typename... Args>
             struct function_traits<R(C::*)(Args...) const>
             {
-                using function_type = std::function<R (Args...)>;
+                using function_type = std::function<R(Args...)>;
             };
         }
 
@@ -176,8 +176,8 @@ namespace then
         Future<typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>>
         MakeTask(TFunction&& function, TArgs&& ...args)
         {
-            using R = typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>;
-            Future<R> future;
+            using Result = typename std::invoke_result_t<std::decay_t<TFunction>, std::decay_t<TArgs>...>;
+            Future<Result> future;
             
             future._future = std::async(std::launch::async | std::launch::deferred, [](TFunction&& function, TArgs&& ...args)
             {
@@ -243,7 +243,7 @@ namespace Promise_Future
                 }).
                 Then(function);
                 
-                auto result = future.Get();
+                [[maybe_unused]] auto result = future.Get();
                 std::cout << std::endl;
             }
             /// second implementation
@@ -403,7 +403,7 @@ namespace Promise_Future
                         }
                     }
                 }
-                /* 2 Способ: std::packaged_task - оборачивает функцию и записывает результат вычисления функции сам вместо std::promise. Работает как std::function + std::promise. Работает как std::function + std::promise и более удобный, чем std::promise.
+                /* 2 Способ: std::packaged_task - оборачивает функцию и записывает результат вычисления функции сам вместо std::promise. Работает как std::function + std::promise и более удобный, чем std::promise.
                  Методы:
                  - get_future - получение другого канал передачи результата - std::future.
                  - make_ready_at_thread_exit - позволяет дождаться полного завершения потока перед тем, как привести std::future в состояние готовности.

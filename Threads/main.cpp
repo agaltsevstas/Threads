@@ -28,13 +28,21 @@
     #include <syncstream>
 #endif
 
-
+ 
 /*
  Лекция: https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3
+ 
  Сайт: https://habr.com/ru/companies/otus/articles/549814/
        https://habr.com/ru/articles/182626/
        http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx
  
+ Atomic: https://vk.com/@habr-kak-rabotat-s-atomarnymi-tipami-dannyh-v-c?ysclid=lyfjpgv4gn827137332
+         https://habr.com/ru/articles/328362/
+         https://habr.com/ru/articles/195948/
+         https://stackoverflow.com/questions/50298358/where-is-the-lock-for-a-stdatomic
+ 
+ Mutex: https://rsdn.org/forum/cpp/7147751.all
+
  Семафоры: https://www.geeksforgeeks.org/cpp-20-semaphore-header/
            https://www.geeksforgeeks.org/std-barrier-in-cpp-20/
 */
@@ -395,7 +403,7 @@ int main()
             {
                 std::cout << "Синхронизация потоков" << std::endl;
                 /*
-                 1 Способ: std::mutex — механизм синхронизации и потокобезопасности (thread safety), который предназначен для контроля доступа к общим данным для нескольких потоков с использованием барьеров памяти. std::mutex - дорогостоящая операция, требует задействование планировщика с переводом потока в другое состояние и добавлением его в список потоков, ожидающих разблокировки
+                 1 Способ: std::mutex — механизм синхронизации, который предназначен для контроля доступа к общим данным для нескольких потоков. Под капотом mutex работает через системный вызов (syscall) futex (fast userspace mutex), который работает в ядре. Он усыпляет поток с помощью планировщика задач (Schedule) и добавляет поток в очередь ожидающих потоков, если мьютекс занят. Когда mutex освобождается, futex выберет один из ждущих в очереди потоков и помечает его исполнить планировщику задач (Schedule). Планировщик переключает контекст на этот поток, и он окажется захваченным mutex. Поход в ядро через syscall и переключение контекста на другой поток — достаточно долгие операции.
                  Методы, внутри используются синхронизации уровня операционной системы (ОС):
                  - lock - происходит захват mutex текущим потоком и блокирует доступ к данным другим потокам; или поток блокируется, если мьютекс уже захвачен другим потоком.
                  - unlock - освобождение mutex, разблокирует данные другим потокам.
@@ -453,7 +461,7 @@ int main()
             }
             
             /*
-             std::condition_variable (условная переменная) - механизм синхронизации между потоками, который работает ТОЛЬКО в паре mutex + std::unique_lock. Используется для блокировки одного или нескольких потоков с помощью wait/wait_for/wait_until куда помещается mutex lock до тех пор, пока другой поток не изменит общую переменную (условие) и не уведомит об этом condition_variable с помощью notify_one/notify_any.
+             std::condition_variable (условная переменная) - механизм синхронизации между потоками, который работает ТОЛЬКО в паре mutex + std::unique_lock. Используется для блокировки одного или нескольких потоков с помощью wait/wait_for/wait_until куда помещается mutex с lock, внутри wait происходит unlock для текущего потока, но его же блокирует с помощью while цикла до тех пор, пока другой поток не изменит общую переменную (условие) и не уведомит об этом condition_variable с помощью notify_one/notify_any.
              */
             {
                 cv::start();
@@ -484,6 +492,31 @@ int main()
              */
             {
                 Latch_Barrier::Start();
+            }
+            /*
+             Обобщенная многопоточная очередь для типа T
+             */
+            {
+                // mutex
+                {
+                    
+                }
+                // shared_mutex
+                {
+                    using namespace SHARED_MUTEX;
+                    std::cout << "ThreadSafeQueue" << std::endl;
+                    
+                    ThreadSafeQueue<std::string> messages;
+                    messages.Push("1");
+                    messages.Push("2");
+                    messages.Push("3");
+                    
+                    while (!messages.Empty())
+                    {
+                        auto result = messages.Front();
+                        messages.Pop();
+                    }
+                }
             }
         }
         // Паралеллизм
