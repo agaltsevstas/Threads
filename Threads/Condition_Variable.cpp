@@ -123,7 +123,12 @@ namespace cv
                     auto PrintSymbol = [&]()
                     {
                         std::unique_lock lock(mutex);
-                        cv.wait(lock, [&data](){ return !data.empty();}); // обработка ложных пробуждений (spurious wakeup)
+                        /*
+                         Тоже самое, что:
+                         while (data.empty())
+                             cv.wait(lock);
+                         */
+                        cv.wait(lock, [&data](){ return !data.empty();}); // ждать пока данные пустые + обработка ложных пробуждений (spurious wakeup)
                         
                         std::cout << data << std::endl;
                         data.clear();
@@ -159,7 +164,7 @@ namespace cv
                     auto PrintSymbol = [&](int indexThread)
                     {
                         std::unique_lock lock(mutex);
-                        cv.wait(lock, [&data](){ return !data.empty();}); // обработка ложных пробуждений (spurious wakeup)
+                        cv.wait(lock, [&data](){ return !data.empty();}); // // ждать пока данные пустые + обработка ложных пробуждений (spurious wakeup)
                         
                         std::cout << "Индекс потока: " << indexThread << ", данные:" << data << std::endl;
                         // data.clear();
@@ -323,7 +328,7 @@ namespace cv
                 auto PrintSymbol = [&]()
                 {
                     std::shared_lock lock(mutex);
-                    cv.wait(lock, [&data](){ return !data.empty();}); // обработка ложных пробуждений (spurious wakeup)
+                    cv.wait(lock, [&data](){ return !data.empty();}); // ждать пока данные пустые + обработка ложных пробуждений (spurious wakeup)
                     
                     std::cout << data << std::endl;
                 };

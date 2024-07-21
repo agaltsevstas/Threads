@@ -47,7 +47,7 @@
 		807AC6722C14468F00EA3D0E /* Semaphore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Semaphore.hpp; sourceTree = "<group>"; };
 		807AC67D2C14ECB700EA3D0E /* Latch_Barrier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Latch_Barrier.hpp; sourceTree = "<group>"; };
 		807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Latch_Barrier.cpp; sourceTree = "<group>"; };
-		8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadSafeQueue.h; sourceTree = "<group>"; };
+		8094D1D42B7D2A3F00ED7423 /* Queue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Queue.h; sourceTree = "<group>"; };
 		8094D1D52B7E39D600ED7423 /* Condition_Variable.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Condition_Variable.cpp; sourceTree = "<group>"; };
 		8094D1D62B7E39D600ED7423 /* Condition_Variable.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Condition_Variable.hpp; sourceTree = "<group>"; };
 		8094D1D82B833BE100ED7423 /* Singleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Singleton.h; sourceTree = "<group>"; };
@@ -96,7 +96,6 @@
 				8022B1B72B7A6E0A00D04163 /* Lock.cpp */,
 				8022B1BB2B7A7DBB00D04163 /* Deadlock.hpp */,
 				8022B1BA2B7A7DBB00D04163 /* Deadlock.cpp */,
-				8094D1D42B7D2A3F00ED7423 /* ThreadSafeQueue.h */,
 				8094D1D62B7E39D600ED7423 /* Condition_Variable.hpp */,
 				8094D1D52B7E39D600ED7423 /* Condition_Variable.cpp */,
 				8094D1D82B833BE100ED7423 /* Singleton.h */,
@@ -110,6 +109,7 @@
 				807AC67E2C14ECB700EA3D0E /* Latch_Barrier.cpp */,
 				807AC66C2C1397F200EA3D0E /* Coroutine.hpp */,
 				807AC6682C1397F100EA3D0E /* Coroutine.cpp */,
+				8094D1D42B7D2A3F00ED7423 /* Queue.h */,
 				80EC04AC2B793A2F0039AA2A /* main.cpp */,
 			);
 			path = Threads;

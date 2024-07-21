@@ -10,7 +10,7 @@
 #include "shared_recursive_mutex.h"
 #include "Semaphore.hpp"
 #include "Timer.h"
-#include "ThreadSafeQueue.h"
+#include "Queue.h"
 
 #include <iomanip>
 #include <iostream>
@@ -494,17 +494,32 @@ int main()
                 Latch_Barrier::Start();
             }
             /*
-             Обобщенная многопоточная очередь для типа T
+             Потокобезопасная очередь - позволяет безопасно нескольким потоков получать доступ к элементам очереди без необходимости синхронизации (синхронизация внутри структуры).
              */
             {
+                std::cout << "ThreadSafeQueue" << std::endl;
+                
                 // mutex
                 {
+                    using namespace MUTEX;
+                    std::cout << "mutex" << std::endl;
                     
+                    ThreadSafeQueue<std::string> messages;
+                    messages.Push("1");
+                    messages.Push("2");
+                    messages.Push("3");
+                    
+                    while (!messages.Empty())
+                    {
+                        auto result = messages.Pop();
+                    }
+                    
+                    std::cout << std::endl;
                 }
                 // shared_mutex
                 {
                     using namespace SHARED_MUTEX;
-                    std::cout << "ThreadSafeQueue" << std::endl;
+                    std::cout << "shared_mutex" << std::endl;
                     
                     ThreadSafeQueue<std::string> messages;
                     messages.Push("1");
@@ -516,6 +531,8 @@ int main()
                         auto result = messages.Front();
                         messages.Pop();
                     }
+                    
+                    std::cout << std::endl;
                 }
             }
         }
