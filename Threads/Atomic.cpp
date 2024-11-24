@@ -22,6 +22,9 @@ namespace atomic
         class Spinlock
         {
             Spinlock(const Spinlock&) = delete;
+            Spinlock(Spinlock&&) noexcept = delete;
+            Spinlock& operator=(const Spinlock&) = delete;
+            Spinlock& operator=(Spinlock&&) noexcept = delete;
             
         public:
             Spinlock() = default;
@@ -61,7 +64,14 @@ namespace atomic
     {
         class Spinlock
         {
+            Spinlock(const Spinlock&) = delete;
+            Spinlock(Spinlock&&) noexcept = delete;
+            Spinlock& operator=(const Spinlock&) = delete;
+            Spinlock& operator=(Spinlock&&) noexcept = delete;
         public:
+            Spinlock() = default;
+            ~Spinlock() = default;
+            
             void Lock()
             {
                 bool expected = false;
@@ -96,7 +106,9 @@ namespace atomic
         class Spinlock
         {
             Spinlock(const Spinlock&) = delete;
-            
+            Spinlock(Spinlock&&) noexcept = delete;
+            Spinlock& operator=(const Spinlock&) = delete;
+            Spinlock& operator=(Spinlock&&) noexcept = delete;
         public:
             Spinlock() = default;
             ~Spinlock() = default;
@@ -135,7 +147,9 @@ namespace atomic_flag
     class Spinlock
     {
         Spinlock(const Spinlock&) = delete;
-        
+        Spinlock(Spinlock&&) noexcept = delete;
+        Spinlock& operator=(const Spinlock&) = delete;
+        Spinlock& operator=(Spinlock&&) noexcept = delete;
     public:
         Spinlock() = default;
         ~Spinlock() = default;

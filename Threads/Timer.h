@@ -17,7 +17,7 @@ public:
 		_running = false;
 	}
 
-	double elapsedMilliseconds() const noexcept
+	double elapsedMilliseconds() const
 	{
         std::chrono::time_point<std::chrono::system_clock> endTime;
 
@@ -33,7 +33,7 @@ public:
         return (double)std::chrono::duration_cast<std::chrono::milliseconds>(endTime - _startTime).count();
 	}
 
-	double elapsedSeconds() const noexcept
+	double elapsedSeconds() const
 	{
 		return elapsedMilliseconds() / 1000.0;
 	}

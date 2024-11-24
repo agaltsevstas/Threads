@@ -20,13 +20,22 @@ namespace MUTEX
     template <typename T>
     class ThreadSafeQueue
     {
+        ThreadSafeQueue(const ThreadSafeQueue&) = delete;
+        ThreadSafeQueue(ThreadSafeQueue&&) noexcept = delete;
+        ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
+        ThreadSafeQueue& operator=(ThreadSafeQueue&&) noexcept = delete;
     public:
+        ThreadSafeQueue() = default;
+        ~ThreadSafeQueue() = default;
         
         void Push(T&& value)
         {
-            std::lock_guard lock(_mutex);
-            _queue.push(std::forward<T>(value));
-            _cv.notify_one(); // Уведомить один ожижающий поток, что он может удалить элемент
+            {
+                std::lock_guard lock(_mutex);
+                _queue.push(std::forward<T>(value));
+                // _cv.notify_one(); Нужно уведомлять условную переменную после того, как отпустили mutex (unlock), чтобы wait не тратил время на ожидание разблокировки mutex для захвата (lock) mutex, поэтому он выносится за скобки
+            }
+            _cv.notify_one(); // в wait удаляется ОДИН поток из очереди и он пробуждается
         }
 
         T Pop()
@@ -36,8 +45,11 @@ namespace MUTEX
              Тоже самое, что:
              while (_queue.empty())
                  cv.wait(lock);
+             
+              в случае НЕвыполнения условия (например, поток-писатель еще не выполнил условие): идет засыпание потока и помещение его в очередь ожидающих потоков с помощью планировщика (Scheduler) через поход в ядро процессора - и так все потоки-читатели поочередно помещаются в очередь ожидания.
+              в случае ВЫПОЛНЕНИЯ условия: происходит попытка захвата mutex (lock) ОДНИМ потоком, продолжающаяся до тех пор, пока он не будет захвачен (бывает другой поток успел раньше захватить mutex и не отпустил его еще). После захвата (lock) mutexа ОДНИМ потоком, он выходит из wait, читает данные, выходит из области видимости unique_lock, освобождая mutex (unlock).
              */
-            _cv.wait(lock, [this]() { return !_queue.empty(); }); // если очередь пуста, то ждем
+            _cv.wait(lock, [this]() { return !_queue.empty(); }); // ждать пока данные пустые + обработка ложных пробуждений (spurious wakeup)
             T item = _queue.front();
             _queue.pop();
             return item;
@@ -61,9 +73,13 @@ namespace SHARED_MUTEX
     template <class T>
     class ThreadSafeQueue
     {
+        ThreadSafeQueue(const ThreadSafeQueue&) = delete;
+        ThreadSafeQueue(ThreadSafeQueue&&) noexcept = delete;
+        ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
+        ThreadSafeQueue& operator=(ThreadSafeQueue&&) noexcept = delete;
     public:
-        ThreadSafeQueue() noexcept = default;
-        ~ThreadSafeQueue() noexcept = default;
+        ThreadSafeQueue() = default;
+        ~ThreadSafeQueue() = default;
         
         T Back()
         {

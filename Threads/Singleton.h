@@ -74,9 +74,9 @@ namespace antipattern
             }
         }
         Singleton(const Singleton&) = delete;
-        Singleton(Singleton&&) = delete;
-        Singleton& operator = (const Singleton&) = delete;
-        Singleton& operator = (Singleton&&) = delete;
+        Singleton(Singleton&&) noexcept = delete;
+        Singleton& operator=(const Singleton&) = delete;
+        Singleton& operator=(Singleton&&) noexcept = delete;
         
     private:
         static inline Singleton* _instance1 = nullptr;

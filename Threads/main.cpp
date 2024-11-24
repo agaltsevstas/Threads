@@ -32,6 +32,10 @@
 /*
  Лекция: https://www.youtube.com/watch?v=z6M5YCWm4Go&ab_channel=ComputerScience%D0%BA%D0%BB%D1%83%D0%B1%D0%BF%D1%80%D0%B8%D0%9D%D0%93%D0%A3
  
+ Лекция condition_variable: https://www.youtube.com/watch?v=79d5WI5RTp8&ab_channel=ComputerScienceCenter
+ 
+ Сайт condition_variable: https://nuancesprog.ru/p/6546/?ysclid=lywwvgiuse463489148
+ 
  Сайт: https://habr.com/ru/companies/otus/articles/549814/
        https://habr.com/ru/articles/182626/
        http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx

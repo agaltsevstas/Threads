@@ -112,7 +112,6 @@ namespace coroutine
          
             Generator(const Generator&) = delete;
             Generator& operator=(const Generator&) = delete;
-         
             Generator(Generator&& other) noexcept :
                 m_coroutine{other.m_coroutine}
             {
@@ -172,7 +171,7 @@ namespace coroutine
         Generator<T> range(T first, const T last)
         {
             while (first < last)
-                co_yield first++;
+                co_yield ++first;
         }
     }
 
