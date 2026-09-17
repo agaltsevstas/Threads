@@ -129,6 +129,28 @@ int main()
     {
         std::cout << "Многопоточность" << std::endl;
         
+        /*
+         Переменная, объявленная со спецификатором thread_local (также может использоваться вместе с static или extern). Для каждого потока создаётся свой экземпляр переменной, который существует до завершения потока.
+         */
+        {
+            std::cout << "thread_local" << std::endl;
+            thread_local std::string str;
+            
+            auto Function = [&](const std::string_view& value)
+            {
+                str += value;
+                std::cout << str << std::endl;
+            };
+            
+            std::thread thread1(Function, "thread 1");
+            std::thread thread2(Function, "thread 2");
+
+            thread1.join();
+            thread2.join();
+            
+            std::cout << std::endl;
+        }
+        
         // Вызов объекта ровно один раз, даже если он вызывается одновременно из нескольких потоков.
         {
             std::once_flag flag;
@@ -177,7 +199,7 @@ int main()
                     if (thread.joinable()) // Проверяет ассоциирован std::thread с потоком, если нет (не было detach или join) - возвращает true
                         thread.detach();
                     SleepFor(10);
-                    std::this_thread::sleep_for(std::chrono::seconds(1)); // подождать завершение всех потоков
+                    std::this_thread::sleep_for(std::chrono::seconds(1)); // подождать завершения всех потоков
                     std::cout << std::endl;
                 }
                 // 3 Способ: join - блокирует основной поток, заставляя дожидаться окончания выполнения потока.
@@ -447,6 +469,36 @@ int main()
                 }
 #endif
             }
+            // std::this_thread::yield - это функция, которая предлагает планировщику приостановить текущий поток, отдав преимущество другим потокам. Планировщик выбирает для запуска другой поток, если он есть. Если других потоков нет, текущий поток продолжает выполнение.
+            {
+                std::cout << "std::this_thread::yield" << std::endl;
+                
+                std::atomic_bool data_ready = false;
+                auto producer = [&data_ready]()
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1)); // имитация работы
+                    data_ready = true;
+                    std::cout << "Данные готовы в producer" << std::endl;
+                };
+
+                auto consumer = [&data_ready]()
+                {
+                    // Активное ожидание БЕЗ yield() - загружает процессор на 100%
+                    // while (!data_ready) {} //
+                    
+                    while (!data_ready) {
+                        std::this_thread::yield(); // отдаем время другим потокам
+                    }
+                    
+                    std::cout << "Данные получены в consumer";
+                };
+                
+                std::thread thread1(producer);
+                std::thread thread2(consumer);
+                
+                thread1.join();
+                thread2.join();
+            }
             /*
              Lock management - RAII обертки, захват mutex.lock() ресурса происходит на стеке в конструкторе и высвобождение unlock при выходе из стека в деструкторе.
              */
@@ -545,53 +597,24 @@ int main()
             // Threadpool
             {
                 std::cout << "Threadpool" << std::endl;
-                // 1 Способ: обычный
+                int sum = 0;
+                std::vector<std::thread> threads;
+                threads.reserve(size);
+
+                timer.start();
+                for (const auto& number : numbers)
                 {
-                    int sum = 0;
-                    std::vector<std::thread> threads;
-                    threads.reserve(size);
-
-                    timer.start();
-                    for (const auto& number : numbers)
-                    {
-                        threads.emplace_back([&]()
-                            {
-                                sum += number;
-                            });
-                    }
-                    for (auto& thread : threads)
-                    {
-                        thread.join();
-                    }
-                    timer.stop();
-                    std::cout << "1 Способ: обычный, с указанием размера массива, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+                    threads.emplace_back([&]()
+                        {
+                            sum += number;
+                        });
                 }
-                // 2 Способ: std::this_thread::yield - приостановливает текущий поток, отдав преимущество другим потокам
+                for (auto& thread : threads)
                 {
-                    std::atomic_bool ready = false;
-                    int sum = 0;
-                    std::vector<std::thread> threads;
-                    threads.reserve(size);
-
-                    timer.start();
-                    for (const auto& number : numbers)
-                    {
-                        threads.emplace_back([&]()
-                            {
-                                while (!ready)
-                                    std::this_thread::yield(); // приостановливает текущий поток, отдав преимущество другим потокам
-
-                                sum += number;
-                            });
-                    }
-                    ready = true;
-                    for (auto& thread : threads)
-                    {
-                        thread.join();
-                    }
-                    timer.stop();
-                    std::cout << "2 Способ: std::this_thread::yield, с указанием размера массива, Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
+                    thread.join();
                 }
+                timer.stop();
+                std::cout << "Сумма: " << sum << " Время: " << timer.elapsedMilliseconds() << " мс" << std::endl;
             }
             
             /*
